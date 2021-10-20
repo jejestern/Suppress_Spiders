@@ -1,0 +1,41 @@
+Daten der Scheibe HD142527 
+--------------------------
+unsaturierter Stern und Ghost(s)
+
+P1-modus: nur ein Ghost
+
+Ghost in den derotierten Bildern wandert weil das Scheibenbild mit
+der Rotation am Himmel auf dem Detektor auch rotiert. Nach
+der Datenrotation ist das Himmelsbild fix und der Ghost rotiert.
+
+P2-modus: zwei Ghosts (eine Ghost von HWPZ)
+
+Ghost und Himmelsobjekt sind fix. Nur die Telescope-spider
+rotiert (mit der Hoehe des Teleskops).
+
+sci_cyc129_normft_1.fits   P1 mode
+sci_cyc133_normft_1.fits
+sci_cyc137_normft_1.fits
+sci_cyc141_normft_1.fits
+sci_cyc145_normft_1.fits
+sci_cyc149_normft_1.fits
+
+sci_cyc177_normft_1.fits  P1 mode
+sci_cyc181_normft_1.fits
+sci_cyc185_normft_1.fits
+sci_cyc189_normft_1.fits
+sci_cyc193_normft_1.fits
+sci_cyc197_normft_1.fits
+
+sci_cyc153_normft_1.fits  P2 mode
+sci_cyc157_normft_1.fits
+sci_cyc161_normft_1.fits
+sci_cyc165_normft_1.fits
+sci_cyc169_normft_1.fits
+sci_cyc173_normft_1.fits
+
+sci_cyc201_normft_1.fits  p2 mode
+sci_cyc205_normft_1.fits
+sci_cyc209_normft_1.fits
+sci_cyc217_normft_1.fits
+sci_cyc221_normft_1.fits
