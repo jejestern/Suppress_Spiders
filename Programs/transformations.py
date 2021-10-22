@@ -12,48 +12,52 @@ from sys import argv, exit
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from timeit import default_timer as timer
+
 
 def cartesian_to_polar(x, y):
+    start1 = timer()
+
     r = np.sqrt(x**2+y**2)
     phi = np.arctan2(-y, x)
     
     # Needed so that phi = [0, 2*pi] otherwise phi = [-pi, pi]  
     phi %= (2*np.pi)
     
+    end1 = timer()
+    print("CartesiontoPolar :", end1-start1)
     return r, phi
 
-
-def radius_mask(shape, center, radi):
-    """
-    Return a mask for a circular sector. The start/stop angles in  
-    `angle_range` should be given in clockwise order and in radians.
-    """
-
-    x, y = np.ogrid[:shape[0],:shape[1]]
+def polar_corrdinates_grid(im_shape, center):
+    
+    x, y = np.ogrid[:im_shape[0], :im_shape[1]]
     cx, cy = center[0], center[1] 
 
     # convert cartesian --> polar coordinates
-    r, _ = cartesian_to_polar(x-cx, y-cy)
+    r_array, phi_array = cartesian_to_polar(x-cx, y-cy) 
+    
+    return r_array, phi_array
 
-    # mask
-    mask = (r <= radi[1]) & (r >= radi[0]) 
 
-    return mask
-
-def angle_mask(shape, center, angles):
+def radius_mask(r_array, radi):
     """
     Return a mask for a circular sector. The start/stop angles in  
     `angle_range` should be given in clockwise order and in radians.
     """
 
-    x, y = np.ogrid[:shape[0],:shape[1]]
-    cx, cy = center[0], center[1]
+    # mask
+    mask = (r_array <= radi[1]) & (r_array >= radi[0]) 
 
-    # convert cartesian --> polar coordinates
-    _, phi = cartesian_to_polar(x-cx, y-cy)
+    return mask
+
+def angle_mask(phi_array, angles):
+    """
+    Return a mask for a circular sector. The start/stop angles in  
+    `angle_range` should be given in clockwise order and in radians.
+    """
 
     # mask
-    mask = (phi <= angles[1]) & (phi >= angles[0])
+    mask = (phi_array <= angles[1]) & (phi_array >= angles[0])
 
     return mask
 
@@ -67,6 +71,9 @@ def transform_to_polar(image, R_start, R_end):
     
     # Define the shape of the new coordinate system
     polar_len = R_end - R_start
+    
+    # Define the corresponding polar coordinates to the x-y coordinates
+    r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
 
     # Polar = [[], [], ...] where x-axis becomes phi and y-axis becomes radius
     polar = np.zeros((polar_len, polar_len)) * np.nan
@@ -76,10 +83,19 @@ def transform_to_polar(image, R_start, R_end):
 
     # We loop over the radi
     for j in range(polar_len):
-        mask_r = radius_mask((x_len, y_len), (x_center, y_center), (rad[j], rad[j+1]))
+        start2 = timer()
+        mask_r = radius_mask(r_array, (rad[j], rad[j+1]))
+        end2 = timer()
+        print("maskr: ", end2-start2)
         for k in range(polar_len):
-            mask_phi = angle_mask((x_len, y_len), (x_center, y_center), (phi[k], phi[k+1]))
+            start3 = timer()
+            mask_phi = angle_mask(phi_array, (phi[k], phi[k+1]))
+            end3 = timer()
+            print("maskphi:", end3-start3)
+            start4 = timer()
             mask = mask_r & mask_phi
+            end4 = timer()
+            print("mask combination:", end4-start4)
             #mask_rad = sector_mask((x_len, y_len), (rad[j], rad[j+1]), (phi[k], phi[k+1]))
             polar[j][k] = sum(sum(image*mask))/len(np.where(mask == 1)[0])
         
@@ -120,11 +136,16 @@ for image_name in files[0:3]:
         x_center = x_len/2 - 1
         y_center = y_len/2 - 1
         
-        img_polar, rads, phis = transform_to_polar(int1, 150, 200)
+        start5 = timer()
+        img_polar, rads, phis = transform_to_polar(int1, 150, 155)
+        end5 = timer()
+        print("Transforom to polar:", end5-start5)
         
+        # Define the corresponding polar coordinates to the x-y coordinates
+        r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         
-        mask_r = radius_mask(int1.shape, (x_center, y_center), (150, 300))
-        mask_phi = angle_mask(int1.shape, (x_center, y_center), (0, 2*np.pi))
+        mask_r = radius_mask(r_array, (150, 155))
+        mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
