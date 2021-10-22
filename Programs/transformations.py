@@ -9,23 +9,75 @@ import numpy as np
 from sys import argv, exit
 import os
 from astropy.io import fits
+import matplotlib.pyplot as plt
+
+def cartesian_to_polar(x, y):
+    r = np.sqrt(x**2+y**2)
+    phi = np.arctan2(-y, x)
+    
+    # Needed so that phi = [0, 2*pi] otherwise phi = [-pi, pi]  
+    phi %= (2*np.pi)
+    
+    return r, phi
 
 
-def transform_to_polar(image):
+def sector_mask(shape, radi, angles):
+    """
+    Return a mask for a circular sector. The start/stop angles in  
+    `angle_range` should be given in clockwise order and in radians.
+    """
+
+    x, y = np.ogrid[:shape[0],:shape[1]]
+    cx, cy = shape[0]/2-1, shape[1]/2-1 
+
+    # convert cartesian --> polar coordinates
+    r, phi = cartesian_to_polar(x-cx, y-cy)
+
+    # mask
+    mask = (r <= radi[1]) & (r >= radi[0]) & (phi <= angles[1]) & (phi >= angles[0])
+
+    return mask
+
+
+def transform_to_polar(image, R_start, R_end):
     
     # Define the center of the image (position of the star)
-    x_0, y_0 = image.shape
-    x_0 = x_0/2
-    y_0 = y_0/2
+    x_len, y_len = image.shape
+    x_center = x_len/2 - 1
+    y_center = y_len/2 - 1
     
-    r = np.sqrt(image)
+    # Define the shape of the new coordinate system
+    polar_len = R_end - R_start
+    print(polar_len)
     
-    # Polar = [[], [], ...] where i = radius and j = theta
-    polar = np.zeros_like(image)
+    # We define a mask for the area which we want to transform
+    mask = sector_mask(image.shape, (R_start, R_end), (0,2*np.pi))
+    mask_x = np.where(mask==1)[0]
+    mask_y = np.where(mask==1)[1]
     
-    print(r)
-    return 0
+    # Polar = [[], [], ...] where x-axis becomes phi and y-axis becomes radius
+    polar = np.zeros((polar_len, polar_len)) * np.nan
+      
+    for i in range(len(mask_x)):
+        r, angle = cartesian_to_polar(mask_x[i] - x_center, mask_y[i] - y_center)
+        r = round(r, 0)
+        
+        #polar[r][0] += 0 #Dividieren nicht vergessen, but how
+        #Try directly with the mask R = 150 -> stretch
+    
+    rad = np.linspace(R_start, R_end, polar_len+1)
+    print(rad)
+    phi = np.linspace(0, 2*np.pi, polar_len+1)
+    print(phi)
+    
+    for j in range(polar_len):
+        for k in range(polar_len):
+            mask_rad = sector_mask((x_len, y_len), (rad[j], rad[j+1]), (phi[k], phi[k+1]))
+            polar[j][k] = sum(sum(image*mask_rad))/len(np.where(mask_rad == 1)[0])
+        
+        print(rad[j])
 
+    return polar
 
     
 # This part takes the argument and saves the folder 
@@ -56,4 +108,15 @@ for image_name in files[0:3]:
         # Choose the intensity 1
         int1 = img_data[0,:,:]
         
-        transform_to_polar(int1)
+        img_polar = transform_to_polar(int1, 150, 160)
+        
+        mask = sector_mask(int1.shape, (150, 300), (np.pi/2, np.pi))
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
+        plt.colorbar()
+        plt.show()
+        """
+        plt.imshow(img_polar, origin='lower', cmap='gray')
+        plt.colorbar()
+        plt.show()
+        """
+        
