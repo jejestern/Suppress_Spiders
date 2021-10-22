@@ -1,5 +1,7 @@
 """
 Different methods to transform an image into polar coordinates.
+Atention: the x-axis is the vertical axis and the y-axis is the horizontal axis
+in this case.
 
 Created on 2021-10-18
 Jennifer Studer <studerje@student.ethz.ch>
@@ -21,63 +23,69 @@ def cartesian_to_polar(x, y):
     return r, phi
 
 
-def sector_mask(shape, radi, angles):
+def radius_mask(shape, center, radi):
     """
     Return a mask for a circular sector. The start/stop angles in  
     `angle_range` should be given in clockwise order and in radians.
     """
 
     x, y = np.ogrid[:shape[0],:shape[1]]
-    cx, cy = shape[0]/2-1, shape[1]/2-1 
+    cx, cy = center[0], center[1] 
 
     # convert cartesian --> polar coordinates
-    r, phi = cartesian_to_polar(x-cx, y-cy)
+    r, _ = cartesian_to_polar(x-cx, y-cy)
 
     # mask
-    mask = (r <= radi[1]) & (r >= radi[0]) & (phi <= angles[1]) & (phi >= angles[0])
+    mask = (r <= radi[1]) & (r >= radi[0]) 
+
+    return mask
+
+def angle_mask(shape, center, angles):
+    """
+    Return a mask for a circular sector. The start/stop angles in  
+    `angle_range` should be given in clockwise order and in radians.
+    """
+
+    x, y = np.ogrid[:shape[0],:shape[1]]
+    cx, cy = center[0], center[1]
+
+    # convert cartesian --> polar coordinates
+    _, phi = cartesian_to_polar(x-cx, y-cy)
+
+    # mask
+    mask = (phi <= angles[1]) & (phi >= angles[0])
 
     return mask
 
 
 def transform_to_polar(image, R_start, R_end):
     
-    # Define the center of the image (position of the star)
+    # Define the shape and of the image (position of the star)
     x_len, y_len = image.shape
     x_center = x_len/2 - 1
     y_center = y_len/2 - 1
     
     # Define the shape of the new coordinate system
     polar_len = R_end - R_start
-    print(polar_len)
-    
-    # We define a mask for the area which we want to transform
-    mask = sector_mask(image.shape, (R_start, R_end), (0,2*np.pi))
-    mask_x = np.where(mask==1)[0]
-    mask_y = np.where(mask==1)[1]
-    
+
     # Polar = [[], [], ...] where x-axis becomes phi and y-axis becomes radius
     polar = np.zeros((polar_len, polar_len)) * np.nan
-      
-    for i in range(len(mask_x)):
-        r, angle = cartesian_to_polar(mask_x[i] - x_center, mask_y[i] - y_center)
-        r = round(r, 0)
-        
-        #polar[r][0] += 0 #Dividieren nicht vergessen, but how
-        #Try directly with the mask R = 150 -> stretch
-    
+
     rad = np.linspace(R_start, R_end, polar_len+1)
-    print(rad)
     phi = np.linspace(0, 2*np.pi, polar_len+1)
-    print(phi)
-    
+
+    # We loop over the radi
     for j in range(polar_len):
+        mask_r = radius_mask((x_len, y_len), (x_center, y_center), (rad[j], rad[j+1]))
         for k in range(polar_len):
-            mask_rad = sector_mask((x_len, y_len), (rad[j], rad[j+1]), (phi[k], phi[k+1]))
-            polar[j][k] = sum(sum(image*mask_rad))/len(np.where(mask_rad == 1)[0])
+            mask_phi = angle_mask((x_len, y_len), (x_center, y_center), (phi[k], phi[k+1]))
+            mask = mask_r & mask_phi
+            #mask_rad = sector_mask((x_len, y_len), (rad[j], rad[j+1]), (phi[k], phi[k+1]))
+            polar[j][k] = sum(sum(image*mask))/len(np.where(mask == 1)[0])
         
         print(rad[j])
 
-    return polar
+    return polar, rad, phi
 
     
 # This part takes the argument and saves the folder 
@@ -108,15 +116,23 @@ for image_name in files[0:3]:
         # Choose the intensity 1
         int1 = img_data[0,:,:]
         
-        img_polar = transform_to_polar(int1, 150, 160)
+        x_len, y_len = int1.shape
+        x_center = x_len/2 - 1
+        y_center = y_len/2 - 1
         
-        mask = sector_mask(int1.shape, (150, 300), (np.pi/2, np.pi))
+        img_polar, rads, phis = transform_to_polar(int1, 150, 200)
+        
+        
+        mask_r = radius_mask(int1.shape, (x_center, y_center), (150, 300))
+        mask_phi = angle_mask(int1.shape, (x_center, y_center), (0, 2*np.pi))
+        mask = mask_r & mask_phi
+        
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
-        """
+
         plt.imshow(img_polar, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
-        """
+
         
