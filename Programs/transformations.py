@@ -83,20 +83,14 @@ def transform_to_polar(image, R_start, R_end):
 
     # We loop over the radi
     for j in range(polar_len):
-        start2 = timer()
+
         mask_r = radius_mask(r_array, (rad[j], rad[j+1]))
-        end2 = timer()
-        print("maskr: ", end2-start2)
+
         for k in range(polar_len):
-            start3 = timer()
+            
             mask_phi = angle_mask(phi_array, (phi[k], phi[k+1]))
-            end3 = timer()
-            print("maskphi:", end3-start3)
-            start4 = timer()
             mask = mask_r & mask_phi
-            end4 = timer()
-            print("mask combination:", end4-start4)
-            #mask_rad = sector_mask((x_len, y_len), (rad[j], rad[j+1]), (phi[k], phi[k+1]))
+            
             polar[j][k] = sum(sum(image*mask))/len(np.where(mask == 1)[0])
         
         print(rad[j])
@@ -137,14 +131,14 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         start5 = timer()
-        img_polar, rads, phis = transform_to_polar(int1, 150, 155)
+        img_polar, rads, phis = transform_to_polar(int1, 150, 300)
         end5 = timer()
-        print("Transforom to polar:", end5-start5)
+        print("Transform to polar:", end5-start5)
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         
-        mask_r = radius_mask(r_array, (150, 155))
+        mask_r = radius_mask(r_array, (150, 300))
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
@@ -155,5 +149,22 @@ for image_name in files[0:3]:
         plt.imshow(img_polar, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
+        
+
+        file1 = open("radtophi_img.txt", "w") 
+        for row in img_polar:
+            np.savetxt(file1, row) 
+        file1.close()
+        
+        file_rad = open("radi.txt", "w") 
+        np.savetxt(file_rad, rads) 
+        file_rad.close()
+
+        file_phi = open("phis.txt", "w")             
+        np.savetxt(file_phi, phis) 
+        file_phi.close()
+        
 
         
+        #original_array = np.loadtxt("radtophi_img.txt").reshape(10, 10)
+
