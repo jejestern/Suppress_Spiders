@@ -41,8 +41,7 @@ def polar_corrdinates_grid(im_shape, center):
 
 def radius_mask(r_array, radi):
     """
-    Return a mask for a circular sector. The start/stop angles in  
-    `angle_range` should be given in clockwise order and in radians.
+    Return a mask.
     """
 
     # mask
@@ -52,8 +51,7 @@ def radius_mask(r_array, radi):
 
 def angle_mask(phi_array, angles):
     """
-    Return a mask for a circular sector. The start/stop angles in  
-    `angle_range` should be given in clockwise order and in radians.
+    Return a mask.
     """
 
     # mask
@@ -131,21 +129,21 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         start5 = timer()
-        img_polar, rads, phis = transform_to_polar(int1, 250, 450)
+        #img_polar, rads, phis = transform_to_polar(int1, 250, 450)
         end5 = timer()
         print("Transform to polar:", end5-start5)
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         
-        mask_r = radius_mask(r_array, (250, 450))
+        mask_r = radius_mask(r_array, (150, 300))
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
-        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=10)
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
-
+"""
         plt.imshow(img_polar, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
@@ -163,7 +161,7 @@ for image_name in files[0:3]:
         file_phi = open("phis.txt", "w")             
         np.savetxt(file_phi, phis) 
         file_phi.close()
-       
+ """     
 
         
         #original_array = np.loadtxt("radtophi_img.txt").reshape(10, 10)
