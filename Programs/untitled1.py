@@ -35,7 +35,7 @@ for image_name in files[0:3]:
         # Choose the intensity 1
         int1 = img_data[0,:,:]
         
-        rotated = rotate(int1, np.pi/2, axes=(0,1))
+        rotated = rotate(int1, 90, axes=(0,1))
         
         plt.imshow(int1, origin='lower', cmap='gray', vmin=0, vmax=100)
         plt.colorbar()
