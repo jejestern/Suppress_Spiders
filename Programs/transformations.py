@@ -68,23 +68,24 @@ def transform_to_polar(image, R_start, R_end):
     y_center = y_len/2 - 1
     
     # Define the shape of the new coordinate system
-    polar_len = R_end - R_start
+    R_len = R_end - R_start
+    phi_len = int(R_start * np.pi)
     
     # Define the corresponding polar coordinates to the x-y coordinates
     r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
 
     # Polar = [[], [], ...] where x-axis becomes phi and y-axis becomes radius
-    polar = np.zeros((polar_len, polar_len)) * np.nan
+    polar = np.zeros((R_len, phi_len)) * np.nan
 
-    rad = np.linspace(R_start, R_end, polar_len+1)
-    phi = np.linspace(0, 2*np.pi, polar_len+1)
+    rad = np.linspace(R_start, R_end, R_len+1)
+    phi = np.linspace(0, 2*np.pi, phi_len+1)
 
     # We loop over the radi
-    for j in range(polar_len):
+    for j in range(R_len):
 
         mask_r = radius_mask(r_array, (rad[j], rad[j+1]))
 
-        for k in range(polar_len):
+        for k in range(phi_len):
             
             mask_phi = angle_mask(phi_array, (phi[k], phi[k+1]))
             mask = mask_r & mask_phi
@@ -128,22 +129,26 @@ for image_name in files[0:3]:
         x_center = x_len/2 - 1
         y_center = y_len/2 - 1
         
+        # Choose the radial range
+        R_1 = 150
+        R_2 = 300
+        
         start5 = timer()
-        #img_polar, rads, phis = transform_to_polar(int1, 250, 450)
+        img_polar, rads, phis = transform_to_polar(int1, R_1, R_2)
         end5 = timer()
         print("Transform to polar:", end5-start5)
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         
-        mask_r = radius_mask(r_array, (150, 300))
+        mask_r = radius_mask(r_array, (R_1, R_2))
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
-"""
+
         plt.imshow(img_polar, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
@@ -161,7 +166,7 @@ for image_name in files[0:3]:
         file_phi = open("phis.txt", "w")             
         np.savetxt(file_phi, phis) 
         file_phi.close()
- """     
+   
 
         
         #original_array = np.loadtxt("radtophi_img.txt").reshape(10, 10)
