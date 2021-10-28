@@ -13,7 +13,6 @@ from astropy.io import fits
 from scipy.ndimage.interpolation import rotate 
 
 
-
 # The image path of the images taken in the P2 mode
 path = "/home/jeje/Dokumente/Masterthesis/Programs/ZirkumstellareScheibe_HD142527/P2_mode"
 files = os.listdir(path)
