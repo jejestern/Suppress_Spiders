@@ -134,7 +134,7 @@ for image_name in files[0:3]:
         R_2 = 300
         
         start5 = timer()
-        img_polar, rads, phis = transform_to_polar(int1, R_1, R_2)
+        #img_polar, rads, phis = transform_to_polar(int1, R_1, R_2)
         end5 = timer()
         print("Transform to polar:", end5-start5)
         
@@ -148,7 +148,7 @@ for image_name in files[0:3]:
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
-
+"""
         plt.imshow(img_polar, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
@@ -168,6 +168,6 @@ for image_name in files[0:3]:
         file_phi.close()
    
 
-        
+"""       
         #original_array = np.loadtxt("radtophi_img.txt").reshape(10, 10)
 

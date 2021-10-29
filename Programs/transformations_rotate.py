@@ -28,7 +28,7 @@ def transform_to_rphi_scipy(image, R_start, R_end):
 
     degree = np.arange(phi_len/2)
     for deg in degree:
-        rotated = rotate(int1, -deg, axes=(1,0))
+        rotated = rotate(int1, deg, axes=(1,0))
             
         slice1 = rotated[int(center+R_start):int(center+R_end), int(center):int(center+1)][:,0]
         slice2 = rotated[int(center-R_end):int(center-R_start), int(center):int(center+1)][:,0]
@@ -62,7 +62,7 @@ for image_name in files[0:3]:
         R_start = 150
         R_end = 300
         
-        rotated = rotate(int1, -90, axes=(1,0))
+        rotated = rotate(int1, 90, axes=(1,0))
         
         plt.imshow(int1, origin='lower', cmap='gray', vmin=0, vmax=100)
         plt.colorbar()
@@ -71,7 +71,7 @@ for image_name in files[0:3]:
         plt.imshow(rotated, origin='lower', cmap='gray', vmin=0, vmax=100)
         plt.colorbar()
         plt.show()
-        
+"""        
         transformed = transform_to_rphi_scipy(int1, R_start, R_end)
         
         plt.imshow(transformed, origin='lower', cmap='gray')
@@ -82,4 +82,4 @@ for image_name in files[0:3]:
         for row in transformed:
             np.savetxt(file1, row) 
         file1.close()
-        
+"""       
