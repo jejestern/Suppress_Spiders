@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import os
 from astropy.io import fits
 from scipy.ndimage.interpolation import rotate 
-#from transformations_1try import polar_corrdinates_grid
 
 
 def transform_to_rphi_scipy(image, R_start, R_end):
@@ -78,3 +77,9 @@ for image_name in files[0:3]:
         plt.imshow(transformed, origin='lower', cmap='gray')
         plt.colorbar()
         plt.show()
+
+        file1 = open("radtophi_rotate.txt", "w") 
+        for row in transformed:
+            np.savetxt(file1, row) 
+        file1.close()
+        
