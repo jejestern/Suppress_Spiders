@@ -1,0 +1,67 @@
+\documentclass[a4paper,10pt,oneside, fleqn]{article}
+% Druckbereich: \areaset[BCOR]{textwidth}{textheight}
+% BCOR ist "Binding Correction", also wieviel Innenrand verloren geht
+% A4 hat 297mm x 210mm
+% wenn keine Marginalien, dann ist Breite 15cm vielleicht besser
+%\areaset[0cm]{15cm}{25cm}
+
+
+\usepackage[english,mt]{ethidsc}    % deutsche Übersetzungen und Wortumbrüche
+\usepackage{mcode}
+\usepackage{subfigure}
+
+   
+% Page header (don't change)____________________________________________________
+\setlength{\parindent}{0em}                 % Disable parindent
+\rhead[\nouppercase{\rightmark}]{\thepage}  % Special headings
+\lhead[\thepage]{\nouppercase{\leftmark}}   % Special headings
+\cfoot{} 
+ 
+%%% hier können noch viel viel mehr Einstellungen kommen
+
+%%% Title page
+\title{To be determined}
+
+\studentA{Jennifer Studer}
+\ethidA{16-915-928}
+\semesterA{2}
+\emailA{studerje@student.ethz.ch}
+
+\supervision{Christian Tschudi\\ Hans Martin Schmid}
+\date{\today}
+
+ 
+%%%% hier beginnt der Inhalt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+\pagestyle{fancy}               	% Fancy headings
+\pagenumbering{arabic}
+
+\vspace*{\fill}
+\begin{abstract}
+
+\end{abstract}
+\vspace*{\fill}
+\newpage
+
+\tableofcontents
+\newpage
+
+\input{text/introduction.tex}
+\input{text/aperture_photometry.tex}
+
+\section{Acknowledgements}
+
+
+\newpage 
+
+\appendix
+\section{Whatever} 
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{bib_exo}
+
+\end{document}
