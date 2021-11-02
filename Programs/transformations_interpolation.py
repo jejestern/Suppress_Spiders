@@ -73,7 +73,7 @@ for image_name in files[0:3]:
         
         rphi_grid = np.vstack((r_flat, phi_flat)).T
 
-        grid_z2 = interpolate.griddata(rphi_grid, int1_flat, (grid_x, grid_y), method='linear')
+        grid_z2 = interpolate.griddata(rphi_grid, int1_flat, (grid_x, grid_y), method='cubic')
                 
         # Vertical flip image data to have the same convention as ds9
         axis2fl=int(grid_z2.ndim-2)
