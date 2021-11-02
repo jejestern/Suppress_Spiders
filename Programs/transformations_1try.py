@@ -25,7 +25,7 @@ def cartesian_to_polar(x, y):
     phi %= (2*np.pi)
     
     end1 = timer()
-    print("CartesiontoPolar :", end1-start1)
+    #print("CartesiontoPolar :", end1-start1)
     return r, phi
 
 def polar_corrdinates_grid(im_shape, center):

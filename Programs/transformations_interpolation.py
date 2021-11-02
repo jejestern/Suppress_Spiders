@@ -14,6 +14,14 @@ from sys import argv, exit
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from transformations_1try import polar_corrdinates_grid
+from scipy import interpolate
+    
+
+def func(x, y):
+
+    return x*(1-x)*np.cos(4*np.pi*x) * np.sin(4*np.pi*y**2)**2
+
 
 # This part takes the argument and saves the folder 
 if not len(argv) == 1:
@@ -50,3 +58,41 @@ for image_name in files[0:3]:
         # Choose the radial range
         R_1 = 150
         R_2 = 300
+        
+        r_grid, phi_grid = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
+        r_flat = r_grid.flatten()
+        phi_flat = phi_grid.flatten()
+        int1_flat = int1.flatten()
+        
+        print(len(r_flat))
+        print(phi_flat)
+        print(int1_flat.shape)
+        #func = interpolate.interp2d(r_flat, phi_flat, int1, kind = 'cubic')
+
+        grid_x, grid_y = np.mgrid[150:300:151j, 0:2*np.pi:1300j]
+        
+        rphi_grid = np.vstack((r_flat, phi_flat)).T
+
+        grid_z2 = interpolate.griddata(rphi_grid, int1_flat, (grid_x, grid_y), method='linear')
+                
+        # Vertical flip image data to have the same convention as ds9
+        axis2fl=int(grid_z2.ndim-2)
+        #print('axis to flip:',axis2fl)
+        grid_z2 = np.flip(grid_z2, axis2fl)
+        
+        
+        fig, ax = plt.subplots()
+        
+        ax.imshow(grid_z2, aspect='auto')
+        plt.tight_layout()
+
+        #plt.plot(rphi_grid[:,0], rphi_grid[:,1], 'b.', ms=1)
+        plt.show()
+
+        rng = np.random.default_rng()
+
+        points = rng.random((10, 2))
+
+        values = func(points[:,0], points[:,1])
+
+        
