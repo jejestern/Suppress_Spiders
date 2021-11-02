@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov  1 15:13:49 2021
+Different methods to transform an image into polar coordinates.
+Atention: the x-axis is the vertical axis and the y-axis is the horizontal axis
+in this case.
 
-@author: jeje
+Created on 2021-11-02
+Jennifer Studer <studerje@student.ethz.ch>
 """
 
-
-import cv2
 import numpy as np
+from sys import argv, exit
 import os
 from astropy.io import fits
+import matplotlib.pyplot as plt
 
+# This part takes the argument and saves the folder 
+if not len(argv) == 1:
+    print("Wrong number of arguments!")
+    print("Usage: python ghosts.py")
+    print("Exiting...")
+    exit()
 
 # The image path of the images taken in the P2 mode
 path = "/home/jeje/Dokumente/Masterthesis/Programs/ZirkumstellareScheibe_HD142527/P2_mode"
@@ -34,23 +43,10 @@ for image_name in files[0:3]:
         # Choose the intensity 1
         int1 = img_data[0,:,:]
         
-        R_start = 150
-        R_end = 300
-
-
-        #--- ensure image is of the type float ---
-        img = int1.astype(np.float32)
-
-        #--- the following holds the square root of the sum of squares of the image dimensions ---
-        #--- this is done so that the entire width/height of the original image is used to express the complete circular range of the resulting polar image ---
-        value = np.sqrt(((img.shape[0]/2.0)**2.0)+((img.shape[1]/2.0)**2.0))
+        x_len, y_len = int1.shape
+        x_center = x_len/2 - 1
+        y_center = y_len/2 - 1
         
-  
-        polar_image = cv2.linearPolar(img,(img.shape[0]/2, img.shape[1]/2), 300, cv2.WARP_FILL_OUTLIERS)
-
-        polar_image = polar_image.astype(np.uint8)
-
-        cv2.imshow("Polar Image", polar_image)
-
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # Choose the radial range
+        R_1 = 150
+        R_2 = 300
