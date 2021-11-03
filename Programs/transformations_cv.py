@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 import os
 from astropy.io import fits
+import matplotlib.pyplot as plt
 
 
 # The image path of the images taken in the P2 mode
@@ -46,11 +47,28 @@ for image_name in files[0:3]:
         value = np.sqrt(((img.shape[0]/2.0)**2.0)+((img.shape[1]/2.0)**2.0))
         
   
-        polar_image = cv2.linearPolar(img,(img.shape[0]/2, img.shape[1]/2), 300, cv2.WARP_FILL_OUTLIERS)
+        polar_image = cv2.linearPolar(img,(img.shape[0]/2, img.shape[1]/2), 300, cv2.INTER_LINEAR)
 
         polar_image = polar_image.astype(np.uint8)
+        
+        # Choose the radius range
+        polar_image = polar_image.T
+        polar_img = polar_image[150:300, 0:]
+        
+        # Vertical flip image data to have the same convention as ds9
+        axis2fl=int(polar_img.ndim-2)
+        #print('axis to flip:',axis2fl)
+        polar_img = np.flip(polar_img, axis2fl)
+        
+        fig, ax = plt.subplots()
+        
+        ax.imshow(polar_img, aspect='auto')
+        plt.tight_layout()
+        plt.show()
 
+"""
         cv2.imshow("Polar Image", polar_image)
 
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+"""
