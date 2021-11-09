@@ -69,9 +69,12 @@ for image_name in files[0:3]:
         print(int1_flat.shape)
         #func = interpolate.interp2d(r_flat, phi_flat, int1, kind = 'cubic')
 
-        grid_x, grid_y = np.mgrid[150:300:151j, 0:2*np.pi:1300j]
+        grid_x, grid_y = np.mgrid[150:300:151j, 0:2*np.pi-0.01:1300j]
         
         rphi_grid = np.vstack((r_flat, phi_flat)).T
+        
+        print(grid_x)
+        print(grid_y)
 
         grid_z2 = interpolate.griddata(rphi_grid, int1_flat, (grid_x, grid_y), method='linear')
                 
@@ -80,6 +83,7 @@ for image_name in files[0:3]:
         #print('axis to flip:',axis2fl)
         grid_z2 = np.flip(grid_z2, axis2fl)
         
+        print(grid_z2.shape)
         
         fig, ax = plt.subplots()
         
@@ -89,10 +93,15 @@ for image_name in files[0:3]:
         #plt.plot(rphi_grid[:,0], rphi_grid[:,1], 'b.', ms=1)
         plt.show()
 
-        rng = np.random.default_rng()
+        #rng = np.random.default_rng()
 
-        points = rng.random((10, 2))
+        #points = rng.random((10, 2))
 
-        values = func(points[:,0], points[:,1])
-
+        #values = func(points[:,0], points[:,1])
         
+        print(grid_z2)
+        file1 = open("radtophi_interpolation.txt", "w") 
+        for row in grid_z2:
+            np.savetxt(file1, row) 
+        file1.close()
+    
