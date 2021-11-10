@@ -47,7 +47,7 @@ for image_name in files[0:3]:
         value = np.sqrt(((img.shape[0]/2.0)**2.0)+((img.shape[1]/2.0)**2.0))
         
   
-        polar_image = cv2.linearPolar(img,(img.shape[0]/2, img.shape[1]/2), 300, cv2.INTER_LINEAR)
+        polar_image = cv2.linearPolar(img,(img.shape[0]/2, img.shape[1]/2), 300, cv2.INTER_CUBIC)
 
         polar_image = polar_image.astype(np.uint8)
         

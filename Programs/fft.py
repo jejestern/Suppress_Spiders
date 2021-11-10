@@ -19,7 +19,6 @@ plt.tight_layout()
 #plt.plot(rphi_grid[:,0], rphi_grid[:,1], 'b.', ms=1)
 plt.show()
 
-print(data)
 
 fourier = np.fft.fftshift(np.fft.fft2(data))
 print(fourier)
