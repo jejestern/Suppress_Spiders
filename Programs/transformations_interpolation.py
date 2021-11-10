@@ -16,12 +16,9 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from transformations_1try import polar_corrdinates_grid
 from scipy import interpolate
+
+import scipy.ndimage as img
     
-
-def func(x, y):
-
-    return x*(1-x)*np.cos(4*np.pi*x) * np.sin(4*np.pi*y**2)**2
-
 
 # This part takes the argument and saves the folder 
 if not len(argv) == 1:
@@ -59,6 +56,11 @@ for image_name in files[0:3]:
         R_1 = 150
         R_2 = 300
         
+        plt.imshow(int1, origin='lower', cmap='gray', vmin=0, vmax=100)
+        plt.plot(200, 100, 'ro')
+        plt.colorbar()
+        plt.show()
+"""        
         r_grid, phi_grid = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         r_flat = r_grid.flatten()
         phi_flat = phi_grid.flatten()
@@ -93,15 +95,10 @@ for image_name in files[0:3]:
         #plt.plot(rphi_grid[:,0], rphi_grid[:,1], 'b.', ms=1)
         plt.show()
 
-        #rng = np.random.default_rng()
-
-        #points = rng.random((10, 2))
-
-        #values = func(points[:,0], points[:,1])
         
         print(grid_z2)
         file1 = open("radtophi_interpolation.txt", "w") 
         for row in grid_z2:
             np.savetxt(file1, row) 
         file1.close()
-    
+"""    

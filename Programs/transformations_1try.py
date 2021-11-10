@@ -15,8 +15,19 @@ import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 
 
-def cartesian_to_polar(x, y):
-    start1 = timer()
+def xy_to_rphi(x, y):
+    """
+    Parameters
+    ----------
+    x, y : float
+        Cartesian coordinates
+
+    Returns
+    -------
+    r, phi : float
+        Polar coordinates, where phi (radians) is zero if (x=positiv, y=0) and 
+        counterclock.
+    """
 
     r = np.sqrt(x**2+y**2)
     phi = np.arctan2(-y, x)
@@ -24,9 +35,14 @@ def cartesian_to_polar(x, y):
     # Needed so that phi = [0, 2*pi] otherwise phi = [-pi, pi]  
     phi %= (2*np.pi)
     
-    end1 = timer()
-    #print("CartesiontoPolar :", end1-start1)
     return r, phi
+
+def rphi_to_xy(r, phi):
+    
+    x = -r * np.sin(phi)
+    y = r * np.cos(phi)
+    
+    return x, y
 
 def polar_corrdinates_grid(im_shape, center):
     
@@ -34,7 +50,7 @@ def polar_corrdinates_grid(im_shape, center):
     cx, cy = center[0], center[1] 
 
     # convert cartesian --> polar coordinates
-    r_array, phi_array = cartesian_to_polar(x-cx, y-cy) 
+    r_array, phi_array = xy_to_rphi(x-cx, y-cy) 
     
     return r_array, phi_array
 
