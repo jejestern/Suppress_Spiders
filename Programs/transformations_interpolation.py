@@ -14,23 +14,8 @@ from sys import argv, exit
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
-from transformations_functions import polar_corrdinates_grid, xy_to_rphi, to_rphi_plane, radius_mask, angle_mask
+from transformations_functions import polar_corrdinates_grid, to_rphi_plane, radius_mask, angle_mask, from_rphi_plane
 #from scipy import interpolate
-import scipy.ndimage 
-
-def from_rphi_plane(warped, im_shape, rmin, rmax):
-    xs, ys = np.meshgrid(np.arange(im_shape[1]), np.arange(im_shape[0]), sparse=True)
-    
-    rs, phis = xy_to_rphi(xs - im_shape[0]/2 +  1, ys - im_shape[1]/2 + 1)
-    rs, phis = rs.reshape(-1), phis.reshape(-1)
-    
-    iis= phis / (np.pi*1.45) * (im_shape[0]-1)
-    jjs= (rs-rmin) / (np.sqrt(im_shape[0]**2 + im_shape[1]**2)/1.45) * (im_shape[1]-1)
-    coords = np.vstack((iis, jjs))
-    h = scipy.ndimage.map_coordinates(warped, coords, order=3)
-    h = h.reshape(im_shape[0], im_shape[1])
-    
-    return h
 
 
 # This part takes the argument and saves the folder 
@@ -94,14 +79,13 @@ for image_name in files[0:3]:
             np.savetxt(warped_file, row) 
         warped_file.close()
         
-        
-        h = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
-        plt.imshow(h, origin='lower', cmap='gray', vmin=0, vmax=20)
+        h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
+        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
         
         
-        plt.imshow(h-int1*mask, origin='lower', cmap='gray', vmin=0, vmax=1)
+        plt.imshow(h2-int1*mask, origin='lower', cmap='gray', vmin=-0.1, vmax=0.1)
         plt.colorbar()
         plt.show()
         

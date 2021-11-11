@@ -100,6 +100,44 @@ def to_rphi_plane(f, im_shape, r_min, r_max):
     
     return g
 
+def from_rphi_plane(warped, im_shape, rmin, rmax):
+    """
+    Warping back from r-phi plane to cartesian coordinates
+
+    Parameters
+    ----------
+    warped : float32, np.array 
+        r-phi plane image. 
+    im_shape : (int, int)
+        Shape of the image before warping (shape of the output image).
+    r_min : int
+        Inner radius.
+    r_max : int
+        Outer radius.
+
+    Returns
+    -------
+    h : float32, np.array 
+        Cartesian image. 
+
+    """
+    
+    phi_len, r_len = warped.shape
+    
+    xs, ys = np.meshgrid(np.arange(im_shape[1]), np.arange(im_shape[0]), sparse=True)
+    
+    rs, phis = xy_to_rphi(xs - (im_shape[0]/2 - 1), ys - (im_shape[1]/2 - 1))
+    rs, phis = rs.reshape(-1), phis.reshape(-1)
+    
+    iis= phis / (2*np.pi) * (phi_len - 1)
+    jjs= (rs - rmin) / (np.sqrt(r_len**2 + phi_len**2)) * (phi_len - 1)
+    
+    coords = np.vstack((iis, jjs))
+    h = scipy.ndimage.map_coordinates(warped, coords, order=3)
+    h = h.reshape(im_shape[0], im_shape[1])
+    
+    return h
+
 def to_r_phi_plane(f, m, n, rmax, phimax):
     rs, phis = np.meshgrid(np.linspace(0, rmax,n), np.linspace(0, phimax, m),sparse=True)
     xs, ys = rphi_to_xy(rs, phis)
