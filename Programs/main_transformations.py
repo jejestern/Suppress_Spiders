@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Different methods to transform an image into polar coordinates.
-Atention: the x-axis is the vertical axis and the y-axis is the horizontal axis
+Attention: the x-axis is the vertical axis and the y-axis is the horizontal axis
 in this case.
 
 Created on 2021-11-02
@@ -66,18 +66,20 @@ for image_name in files[0:3]:
         
         
         warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2)
+        warped_or = warped.T
         
         fig, ax = plt.subplots(1,1)
-        im = ax.imshow(warped.T, origin='lower', aspect='auto', vmin=0, vmax= 20, 
+        im = ax.imshow(warped_or, origin='lower', aspect='auto', vmin=0, vmax= 20, 
                        extent=[0, 360, R_1, R_2])
         plt.tight_layout()
         plt.colorbar(im)
         plt.show()
         
         warped_file = open("rphi_plane_spline3_R150_R300.txt", "w") 
-        for row in warped:
+        for row in warped_or:
             np.savetxt(warped_file, row) 
         warped_file.close()
+        print("The shape of the warped image is: ", warped.shape)
         
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
         plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=20)

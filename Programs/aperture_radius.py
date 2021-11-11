@@ -2,6 +2,7 @@
 This program finds the radius needed for the aperture photometry. It is made 
 for the images used in P2, where the ghosts stay at the same position.
 
+
 Created on 2021-10-12
 Jennifer Studer <studerje@student.ethz.ch>
 """

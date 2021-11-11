@@ -1,7 +1,5 @@
 """
-Different methods to transform an image into polar coordinates.
-Atention: the x-axis is the vertical axis and the y-axis is the horizontal axis
-in this case.
+Different functions needed to transform an image into polar coordinates.
 
 Created on 2021-10-18
 Jennifer Studer <studerje@student.ethz.ch>
