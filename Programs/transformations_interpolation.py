@@ -18,7 +18,7 @@ from transformations_functions import polar_corrdinates_grid, xy_to_rphi, to_rph
 #from scipy import interpolate
 import scipy.ndimage 
 
-def from_r_phi_plane(warped, im_shape, rmin, rmax):
+def from_rphi_plane(warped, im_shape, rmin, rmax):
     xs, ys = np.meshgrid(np.arange(im_shape[1]), np.arange(im_shape[0]), sparse=True)
     
     rs, phis = xy_to_rphi(xs - im_shape[0]/2 +  1, ys - im_shape[1]/2 + 1)
@@ -95,7 +95,7 @@ for image_name in files[0:3]:
         warped_file.close()
         
         
-        h = from_r_phi_plane(warped, (x_len, y_len), R_1, R_2)
+        h = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
         plt.imshow(h, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
