@@ -14,11 +14,9 @@ from sys import argv, exit
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
-from transformations_1try import polar_corrdinates_grid
-from scipy import interpolate
+from transformations_functions import polar_corrdinates_grid, to_rphi_plane, radius_mask, angle_mask
+#from scipy import interpolate
 
-import scipy.ndimage as img
-    
 
 # This part takes the argument and saves the folder 
 if not len(argv) == 1:
@@ -56,11 +54,33 @@ for image_name in files[0:3]:
         R_1 = 150
         R_2 = 300
         
-        plt.imshow(int1, origin='lower', cmap='gray', vmin=0, vmax=100)
-        plt.plot(200, 100, 'ro')
+        # Define the corresponding polar coordinates to the x-y coordinates
+        r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
+        mask_r = radius_mask(r_array, (R_1, R_2))
+        mask_phi = angle_mask(phi_array, (0, 2*np.pi))
+        mask = mask_r & mask_phi
+        
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
-"""        
+        
+        
+        warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2).T
+        
+        fig, ax = plt.subplots(1,1)
+        im = ax.imshow(warped, origin='lower', aspect='auto', vmin=0, vmax= 20, 
+                       extent=[0, 360, R_1, R_2])
+        plt.tight_layout()
+        plt.colorbar(im)
+        plt.show()
+        
+        warped_file = open("rphi_plane_spline3_R150_R300.txt", "w") 
+        for row in warped:
+            np.savetxt(warped_file, row) 
+        warped_file.close()
+        
+        
+"""            
         r_grid, phi_grid = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
         r_flat = r_grid.flatten()
         phi_flat = phi_grid.flatten()

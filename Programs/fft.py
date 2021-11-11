@@ -9,11 +9,11 @@ Created on Tue Oct 19 11:44:30 2021
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs/radtophi_interpolation.txt").reshape(151, 1300)
+data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs/rphi_plane_spline3_R150_R300.txt").reshape(150, 1413)
 
 fig, ax = plt.subplots()
         
-ax.imshow(data, aspect='auto')
+ax.imshow(data, origin='lower', aspect='auto')
 plt.tight_layout()
 
 #plt.plot(rphi_grid[:,0], rphi_grid[:,1], 'b.', ms=1)
