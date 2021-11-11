@@ -32,7 +32,7 @@ def xy_to_rphi(x, y):
     """
 
     r = np.sqrt(x**2+y**2)
-    phi = np.arctan2(-y, x)
+    phi = np.arctan2(-x, y)
     
     # Needed so that phi = [0, 2*pi] otherwise phi = [-pi, pi]  
     phi %= (2*np.pi)
@@ -63,7 +63,7 @@ def rphi_to_xy(r, phi):
 
 def to_rphi_plane(f, im_shape, r_min, r_max):
     """
-    Warping to r-phi plane
+    Warping to r-phi plane.
 
     Parameters
     ----------

@@ -14,8 +14,23 @@ from sys import argv, exit
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
-from transformations_functions import polar_corrdinates_grid, to_rphi_plane, radius_mask, angle_mask
+from transformations_functions import polar_corrdinates_grid, xy_to_rphi, to_rphi_plane, radius_mask, angle_mask
 #from scipy import interpolate
+import scipy.ndimage 
+
+def from_r_phi_plane(warped, im_shape, rmin, rmax):
+    xs, ys = np.meshgrid(np.arange(im_shape[1]), np.arange(im_shape[0]), sparse=True)
+    
+    rs, phis = xy_to_rphi(xs - im_shape[0]/2 +  1, ys - im_shape[1]/2 + 1)
+    rs, phis = rs.reshape(-1), phis.reshape(-1)
+    
+    iis= phis / (np.pi*1.45) * (im_shape[0]-1)
+    jjs= (rs-rmin) / (np.sqrt(im_shape[0]**2 + im_shape[1]**2)/1.45) * (im_shape[1]-1)
+    coords = np.vstack((iis, jjs))
+    h = scipy.ndimage.map_coordinates(warped, coords, order=3)
+    h = h.reshape(im_shape[0], im_shape[1])
+    
+    return h
 
 
 # This part takes the argument and saves the folder 
@@ -65,10 +80,10 @@ for image_name in files[0:3]:
         plt.show()
         
         
-        warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2).T
+        warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2)
         
         fig, ax = plt.subplots(1,1)
-        im = ax.imshow(warped, origin='lower', aspect='auto', vmin=0, vmax= 20, 
+        im = ax.imshow(warped.T, origin='lower', aspect='auto', vmin=0, vmax= 20, 
                        extent=[0, 360, R_1, R_2])
         plt.tight_layout()
         plt.colorbar(im)
@@ -79,6 +94,16 @@ for image_name in files[0:3]:
             np.savetxt(warped_file, row) 
         warped_file.close()
         
+        
+        h = from_r_phi_plane(warped, (x_len, y_len), R_1, R_2)
+        plt.imshow(h, origin='lower', cmap='gray', vmin=0, vmax=20)
+        plt.colorbar()
+        plt.show()
+        
+        
+        plt.imshow(h-int1*mask, origin='lower', cmap='gray', vmin=0, vmax=1)
+        plt.colorbar()
+        plt.show()
         
 """            
         r_grid, phi_grid = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
