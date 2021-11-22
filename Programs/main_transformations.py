@@ -51,8 +51,8 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         # Choose the radial range
-        R_1 = 300
-        R_2 = 450
+        R_1 = 0
+        R_2 = 800
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -69,7 +69,7 @@ for image_name in files[0:3]:
         warped_or = warped.T
         
         fig, ax = plt.subplots(1,1)
-        im = ax.imshow(warped_or, origin='lower', aspect='auto', vmin=0, vmax= 5, 
+        im = ax.imshow(warped_or, origin='lower', aspect='auto', vmin=0, vmax= 100, 
                        extent=[0, 360, R_1, R_2])
         plt.tight_layout()
         plt.colorbar(im)
