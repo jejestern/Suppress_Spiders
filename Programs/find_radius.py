@@ -56,17 +56,19 @@ for image_name in files[0:1]:
 
         rad = np.array(rad)
         numcounts = np.array(numcounts)
-        radius = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0])
+        radius = np.arange(1, 30)
         aper = np.zeros_like(radius)
         for ap in range(len(radius)):
             aper[ap] = phot_table(radius[ap])['aperture_sum']
 
-        plt.plot(radius, aper, 'o', label="The counts against a certain radius")
-        plt.plot(rad, numcounts, 'rx', label="Choosen radius")
+        plt.plot(radius, aper, 'o', label="Number of counts for a certain radius")
+        #plt.plot(rad, numcounts, 'rx', label="Choosen radius")
         plt.xlabel('Radius r in pixels')
         plt.ylabel('Counts')
         plt.legend()
         #plt.title(star) 
+        plt.tight_layout()
+        plt.savefig("aperture_photometry/CountsPerRadius.pdf")
         plt.show()
         print('The radius to choose is r = ', rad[-1])
 

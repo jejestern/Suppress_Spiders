@@ -43,7 +43,7 @@ ratio_2 = []
 # We define the positions of the ghosts
 gh_pos = [(891.0, 600.0), (213.0, 387.0)]
 
-for image_name in files:
+for image_name in files[:3]:
     if image_name.endswith("1.fits"): 
         # Reading in the images from camera 1
         img_data = fits.getdata(path + "/" + image_name, ext=0)
