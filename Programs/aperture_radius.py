@@ -58,12 +58,12 @@ def aperture_phot(image, norm, position, star_position, r_ap, plot):
     
     # We transform the position of the target into polar coordinates
     rad = np.sqrt((position[0]-star_position[0][0])**2 + (position[1]-star_position[0][1])**2)
-    phi_start = np.arctan((position[1]-star_position[0][1])/(position[0]-star_position[0][0]))
+    phi_start = np.arctan2((position[1]-star_position[0][1]), (position[0]-star_position[0][0]))
     
     #circ = CircularAperture(star_position, r=round(rad, 0))
 
     # Transform the target position back to the x/y coordinate system
-    phi = np.linspace(0, 2*np.pi, 50) + phi_start
+    phi = np.linspace(0, 2*np.pi, 20) + phi_start
     x_circ = star_position[0][0] + rad* np.cos(phi)
     y_circ = star_position[0][1] + rad* np.sin(phi)
     circ_positions = []
