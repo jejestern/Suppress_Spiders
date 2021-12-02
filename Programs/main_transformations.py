@@ -51,8 +51,8 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         # Choose the radial range
-        R_1 = 0
-        R_2 = 800
+        R_1 = 150
+        R_2 = 300
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -60,17 +60,19 @@ for image_name in files[0:3]:
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
-        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=5)
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
         
         
         warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2)
         warped_or = warped.T
+        warped_shape = warped.shape
         
+        aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
         fig, ax = plt.subplots(1,1)
-        im = ax.imshow(warped_or, origin='lower', aspect='auto', vmin=0, vmax= 100, 
-                       extent=[0, 360, R_1, R_2])
+        im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, 
+                       vmax= 20, extent=[0, 360, R_1, R_2])
         plt.tight_layout()
         plt.colorbar(im)
         plt.show()
@@ -82,7 +84,7 @@ for image_name in files[0:3]:
         print("The shape of the warped image is: ", warped.shape)
         
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
-        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=5)
+        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=20)
         plt.colorbar()
         plt.show()
         

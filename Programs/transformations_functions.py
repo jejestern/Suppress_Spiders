@@ -81,11 +81,11 @@ def to_rphi_plane(f, im_shape, r_min, r_max):
 
     """
     
-    #r_len = r_max - r_min
-    #phi_len = int(2*np.pi*(r_min + r_len/2))
-    #print(phi_len)
-    r_len = 1000
-    phi_len = 1000
+    r_len = r_max - r_min
+    phi_len = int(2*np.pi*(r_min + r_len/2))
+    print(phi_len)
+    #r_len = 1000
+    #phi_len = 1000
     
     rs, phis = np.meshgrid(np.linspace(r_min, r_max, r_len), 
                            np.linspace(0, 2*np.pi, phi_len), sparse=True)
@@ -138,15 +138,6 @@ def from_rphi_plane(warped, im_shape, rmin, rmax):
     
     return h
 
-def to_r_phi_plane(f, m, n, rmax, phimax):
-    rs, phis = np.meshgrid(np.linspace(0, rmax,n), np.linspace(0, phimax, m),sparse=True)
-    xs, ys = rphi_to_xy(rs, phis)
-    xs, ys = xs.reshape(-1), ys.reshape(-1)
-    coords = np.vstack((ys, xs))
-    print(coords)
-    g = scipy.ndimage.map_coordinates(f, coords, order=3)
-    g = g.reshape(m, n)
-    return np.flipud(g)
 
 def polar_corrdinates_grid(im_shape, center):
     
