@@ -15,7 +15,7 @@ x_len, y_len = 1000, 1000
 circle = np.ones((x_len, y_len))
 
 # Define the circle
-circle_center = (700, 700)
+circle_center = (300, 511)
 circle_radius = (0, 10)
 r_array, phi_array = polar_corrdinates_grid((x_len, y_len), circle_center)
 mask_r = radius_mask(r_array, circle_radius)
@@ -30,15 +30,15 @@ plt.show()
 
 # Start with the transformation to r-phi plane
 ## Choose the radial range
-R_1 = 200
-R_2 = 350
+R_1 = 100
+R_2 = 300
 
 warped = to_rphi_plane(circle, (x_len, y_len), R_1, R_2)
 warped_or = warped.T
 warped_shape = warped.shape
 
 aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
-fig, ax = plt.subplots(1,1)
+fig, ax = plt.subplots(1,1, figsize=(8/aspect_value, 8))
 im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, vmax= 1, 
                extent=[0, 360, R_1, R_2])
 plt.tight_layout()

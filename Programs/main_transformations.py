@@ -70,7 +70,7 @@ for image_name in files[0:3]:
         warped_shape = warped.shape
         
         aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
-        fig, ax = plt.subplots(1,1)
+        fig, ax = plt.subplots(1,1, figsize=(8/aspect_value, 8))
         im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, 
                        vmax= 20, extent=[0, 360, R_1, R_2])
         plt.tight_layout()

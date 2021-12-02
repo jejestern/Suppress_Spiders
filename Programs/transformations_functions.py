@@ -83,9 +83,7 @@ def to_rphi_plane(f, im_shape, r_min, r_max):
     
     r_len = r_max - r_min
     phi_len = int(2*np.pi*(r_min + r_len/2))
-    print(phi_len)
-    #r_len = 1000
-    #phi_len = 1000
+    #print(phi_len)
     
     rs, phis = np.meshgrid(np.linspace(r_min, r_max, r_len), 
                            np.linspace(0, 2*np.pi, phi_len), sparse=True)
