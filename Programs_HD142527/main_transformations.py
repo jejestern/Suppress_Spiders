@@ -26,7 +26,7 @@ if not len(argv) == 1:
     exit()
 
 # The image path of the images taken in the P2 mode
-path = "/home/jeje/Dokumente/Masterthesis/Programs/ZirkumstellareScheibe_HD142527/P2_mode"
+path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
 files = os.listdir(path)
 
 # We define the positions of the ghosts

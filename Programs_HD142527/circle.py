@@ -30,7 +30,7 @@ plt.show()
 
 # Start with the transformation to r-phi plane
 ## Choose the radial range
-R_1 = 100
+R_1 = 150
 R_2 = 300
 
 warped = to_rphi_plane(circle, (x_len, y_len), R_1, R_2)
