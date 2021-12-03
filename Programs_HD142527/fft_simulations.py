@@ -34,6 +34,7 @@ def fourier(image):
     
     return fourier_im
 
+
 sim_1 = np.zeros((1000, 1000))
 sim_1[:, 200] = 1
 fourier(sim_1)

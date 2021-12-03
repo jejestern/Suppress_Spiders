@@ -38,9 +38,32 @@ warped_or = warped.T
 warped_shape = warped.shape
 
 aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
+"""
 fig, ax = plt.subplots(1,1, figsize=(8/aspect_value, 8))
 im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, vmax= 1, 
                extent=[0, 360, R_1, R_2])
 plt.tight_layout()
 plt.colorbar(im)
+plt.show()
+"""
+    
+fourier_w = np.fft.fftshift(np.fft.fft2(warped_or))
+
+# Plot the output
+plt.figure(figsize=(8/aspect_value, 8))
+
+plt.subplot(211)
+plt.imshow(warped_or, origin='lower', cmap='gray', aspect=aspect_value, 
+           extent=[0, 360, R_1, R_2])
+plt.title(r'Image in r-phi plane')
+plt.colorbar()
+    
+epsilon = 10**(-6) # In order to be able to take the log even if there are zeros in the array
+    
+plt.subplot(212)
+plt.imshow(np.log(abs(fourier_w)+epsilon), origin='lower', cmap='gray', aspect=1)
+plt.title(r'Fourier Transformed Image')
+plt.colorbar()
+        
+plt.tight_layout()
 plt.show()

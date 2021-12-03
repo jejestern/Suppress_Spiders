@@ -9,22 +9,34 @@ Created on Tue Oct 19 11:44:30 2021
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs/rphi_plane_spline3_R150_R300.txt").reshape(1000, 1000)
+shape = 150, 1413
+R_1, R_2 = 100, 200
 
-fig, ax = plt.subplots(1,1)
-im = ax.imshow(data, origin='lower', aspect='auto', vmin=0, vmax= 20, 
-               extent=[0, 360, 150, 300])
-plt.tight_layout()
-plt.colorbar(im)
-plt.show()
+data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs/rphi_plane_spline3_R150_R300.txt").reshape(shape)
 
+# Fourier transform
 fourier = np.fft.fftshift(np.fft.fft2(data))
 
-plt.figure()
-plt.imshow(np.log(abs(fourier)), cmap='gray', aspect='auto')
-plt.tight_layout()
+# Plot the output
+aspect_value = 360/shape[1]
+plt.figure(figsize=(8/aspect_value, 8))
+
+plt.subplot(211)
+plt.imshow(data, origin='lower', aspect=aspect_value, vmin=0, vmax= 20, 
+               extent=[0, 360, R_1, R_2])
+plt.title(r'Image in r-phi plane')
 plt.colorbar()
+    
+epsilon = 10**(-6) # In order to be able to take the log even if there are zeros in the array
+    
+plt.subplot(212)
+plt.imshow(np.log(abs(fourier)+epsilon), origin='lower', cmap='gray', aspect=1)
+plt.title(r'Fourier Transformed Image')
+plt.colorbar()
+        
+plt.tight_layout()
 plt.show()
+
 
 # R150-300 usual length
 #fourier[65:85, -706:-550] = 1
