@@ -19,7 +19,7 @@ def e_func(x, a, b, c):
 
 
 
-data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs/cyc_161_R150to300/radtophi_img.txt").reshape(150, 150)
+data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/rphi_plane_spline3_R150_R300.txt").reshape(150, 1413)
 
 
 plt.imshow(data, origin='lower', cmap='gray')

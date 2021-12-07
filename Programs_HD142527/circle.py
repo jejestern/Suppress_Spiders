@@ -9,6 +9,8 @@ Created on Thu Dec  2 16:56:04 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from transformations_functions import polar_corrdinates_grid, radius_mask, angle_mask, to_rphi_plane
+from astropy.visualization import simple_norm
+#from aperture_radius import aperture_phot
 
 x_len, y_len = 1000, 1000
 
@@ -58,12 +60,19 @@ plt.imshow(warped_or, origin='lower', cmap='gray', aspect=aspect_value,
 plt.title(r'Image in r-phi plane')
 plt.colorbar()
     
-epsilon = 10**(-6) # In order to be able to take the log even if there are zeros in the array
+norm_fft = simple_norm(abs(fourier_w), 'log', percent=99.9) # In order to be able to take the log even if there are zeros in the array
     
 plt.subplot(212)
-plt.imshow(np.log(abs(fourier_w)+epsilon), origin='lower', cmap='gray', aspect=1)
+plt.imshow(abs(fourier_w), origin='lower', cmap='gray', norm=norm_fft, aspect=1)
 plt.title(r'Fourier Transformed Image')
 plt.colorbar()
         
 plt.tight_layout()
 plt.show()
+"""
+# Define the norm for afterwards plotting the image
+norm = simple_norm(circle, 'log', percent=99.9)
+aperture_rad = 11.0        
+
+fmean, sigma, SN, ratio = aperture_phot(circle, norm, circle_center, [(511,511)], aperture_rad, True)
+"""
