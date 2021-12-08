@@ -1,4 +1,20 @@
 \section{Transformation to the r-phi plane}
 We have now seen that the ghosts are about $10^{-4}$ times less bright then their star, but potential exoplanets are even less bright. A Jupiter like exoplanet would be $10^{-9}$ less bright (reflecting light) and an Earth like even only $2 \cdot 10^{-10}$. Therefore the data must be really sensitive, with a high contrast and a high spatial resolution. As we can see in figure \ref{fig:ghosts} the star produces strong spiders and speckles which have similar brightness as the ghosts or are even brighter. Therefore exoplanets which are situated in this regimes cannot be detected, unless we are able to take out the signals of the spiders and speckles without taking away other signals, like the ones from exoplanets.\\
 If we take a closer look at figure \ref{fig:ghosts} we observe that the structure of the spiders and the speckles are radially oriented around the star. In order to get rid of this effects it might be a good idea to transform the image into the r-phi plane, where we define the star to be at radius zero. After the transformation the spiders and speckles are distributed along the phi axis and they become weaker along the r axis.\\
-Lets have a look at how one can transform the image into the r-phi plane. This kind of transformation is called image warping in image processing. In our case the image warping is based on a specific transformation, namely the transformation from cartesian to polar coordinates and is therefore also called polar-cartesian distortion.
+Lets have a look at how one can transform the image into the r-phi plane. This kind of transformation is called image warping in image processing. In our case the image warping is based on a specific transformation, namely the transformation from cartesian to polar coordinates and is therefore also called polar-cartesian distortion.\\
+In general an image warping is based on a transformation $T: \mathbb{R}^2 \rightarrow \mathbb{R}^2$, such that 
+\begin{equation}
+	\vec{x} \mapsto \vec{u} = \begin{pmatrix} T_u(x,y) \\ T_v(x,y) \end{pmatrix},
+\end{equation}
+where $\vec{x} = \begin{pmatrix} x \\ y \end{pmatrix}$ and $\vec{u} = \begin{pmatrix} u \\ v \end{pmatrix}$. When we want to warp an image $f$ into an image $g$ we do the following calculation
+\begin{equation}
+	g(\vec{u}) = g(T(\vec{x})) = f(\vec{x}).
+\end{equation}
+This means that at pixel $\vec{u}$ the computed image $g$ has the same intensity as the original image $f$ at pixel $\vec{x}$. \cite{ImageWarping}\\
+Next:\\
+- Keep in mind: not bilinear and Before we can do the distortion we have to define our coordinate systems. \\
+- how I did it (insert a little code fragment of the warping to r-phi) 
+- what about warping back? (no code fragment)
+- data examples
+- circle -> to explain chosen length of phis
+- was the aperture preserved? 
