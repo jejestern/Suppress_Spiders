@@ -8,7 +8,7 @@ Created on Tue Oct 19 11:44:30 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.visualization import simple_norm
+from matplotlib.colors import LogNorm
 
 shape = 150, 1413
 R_1, R_2 = 150, 300
@@ -28,10 +28,9 @@ plt.imshow(data, origin='lower', aspect=aspect_value, vmin=0, vmax= 20,
 plt.title(r'Image in r-phi plane')
 plt.colorbar()
     
-norm_fft = simple_norm(abs(fourier), 'log', percent=99.9) # In order to be able to take the log even if there are zeros in the array
     
 plt.subplot(212)
-plt.imshow(abs(fourier), origin='lower', cmap='gray', norm = norm_fft, aspect=1)
+plt.imshow(abs(fourier), origin='lower', cmap='gray', norm = LogNorm(vmin=1), aspect=1)
 plt.title(r'Fourier Transformed Image')
 plt.colorbar()
         
@@ -65,7 +64,7 @@ img_back = abs(np.fft.ifft2(fourier))
 plt.figure(figsize=(8/aspect_value, 8))
 
 plt.subplot(211)
-plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=norm_fft, aspect=1)
+plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=LogNorm(vmin=1), aspect=1)
 plt.title(r'Masked Fourier Transformed Image')
 plt.colorbar()
 

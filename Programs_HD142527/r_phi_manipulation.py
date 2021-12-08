@@ -8,7 +8,7 @@ Created on Mon Dec  6 20:05:00 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from astropy.visualization import simple_norm
+from matplotlib.colors import LogNorm
 
 
 def e_func(x, a, b, c):
@@ -34,10 +34,8 @@ plt.imshow(data, origin='lower', aspect=aspect_value, vmin=0, vmax= 20,
 plt.title(r'Image in r-phi plane')
 plt.colorbar()
     
-norm_fft = simple_norm(abs(fourier), 'log', percent=99.9) # In order to be able to take the log even if there are zeros in the array
-    
 plt.subplot(212)
-plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=norm_fft, aspect=1)
+plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=LogNorm(vmin=1), aspect=1)
 plt.title(r'Fourier Transformed Image')
 plt.colorbar()
         
@@ -75,7 +73,7 @@ plt.colorbar()
 epsilon = 10**(-6) # In order to be able to take the log even if there are zeros in the array
     
 plt.subplot(212)
-plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=norm_fft, aspect=1)
+plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=LogNorm(vmin=1), aspect=1)
 plt.title(r'Fourier Transformed Image')
 plt.colorbar()
         
