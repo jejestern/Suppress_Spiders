@@ -25,7 +25,7 @@ if not len(argv) == 1:
     exit()
 
 # The image path of the images taken in the P2 mode
-path = "/home/jeje/Dokumente/Masterthesis/Programs/ZirkumstellareScheibe_HD142527/P2_mode"
+path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
 files = os.listdir(path)
 
 # Initialisation of lists in which we save the information
@@ -127,7 +127,7 @@ sigma_1_mean = np.mean(sigma_1)
 sigma_2_mean = np.mean(sigma_2)
 
 # Write the data in a txt file
-ghosts = open("/home/jeje/Dokumente/Masterthesis/Programs/aperture_photometry/ghosts.txt", "w")
+ghosts = open("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/aperture_photometry/ghosts.txt", "w")
 ghosts.write(str('image_names, SN of ghost 1, SN of ghost 2, ratio 1, ratio 2, fmean 1, fmean 2, sigma 1, sigma 2')+'\n')
 ghosts.write(str(image_names)+'\n') 
 ghosts.write(str(SN_1)+'\n')   

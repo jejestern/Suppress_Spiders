@@ -51,8 +51,8 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         # Choose the radial range
-        R_1 = 150
-        R_2 = 300
+        R_1 = 290
+        R_2 = 490
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -60,8 +60,10 @@ for image_name in files[0:3]:
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
-        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=20)
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=3)
         plt.colorbar()
+        plt.tight_layout()
+        #plt.savefig("interpolation/HDimg_R150_R300.pdf")
         plt.show()
         
         
@@ -70,11 +72,14 @@ for image_name in files[0:3]:
         warped_shape = warped.shape
         
         aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
-        fig, ax = plt.subplots(1,1, figsize=(8/aspect_value, 8))
+        fig, ax = plt.subplots(1,1, figsize=(8, 8*aspect_value))
         im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, 
-                       vmax= 20, extent=[0, 360, R_1, R_2])
-        plt.tight_layout()
+                       vmax= 3, extent=[0, 360, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.ylabel('Radius')
         plt.colorbar(im)
+        plt.tight_layout()
+        plt.savefig("interpolation/HDwarped_R290_R490.pdf")
         plt.show()
         
         warped_file = open("rphi_plane_spline3_R150_R300.txt", "w") 
@@ -84,7 +89,7 @@ for image_name in files[0:3]:
         print("The shape of the warped image is: ", warped.shape)
         
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
-        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=20)
+        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=3)
         plt.colorbar()
         plt.show()
         
