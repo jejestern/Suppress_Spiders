@@ -158,5 +158,5 @@ for image_name in files[0:3]:
         
         plt.imshow(h2-int1*mask, origin='lower', cmap='gray', vmin=-0.1, vmax=0.1)
         plt.colorbar()
-        plt.show()
+        plt.show()  
 """
