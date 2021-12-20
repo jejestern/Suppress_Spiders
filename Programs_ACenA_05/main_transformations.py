@@ -49,7 +49,7 @@ for image_name in files[0:2]:
         y_center = y_len/2 - 1
         
         # Choose the radial range
-        R_1 = 40
+        R_1 = 100
         R_2 = 300
         I_max = 30000
         
@@ -81,7 +81,7 @@ for image_name in files[0:2]:
         plt.savefig("interpolation/HDwarped_R290_R490.pdf")
         plt.show()
         
-        warped_file = open("rphi_plane_spline3_R150_R300.txt", "w") 
+        warped_file = open("rphi_plane_spline3_R100_R300.txt", "w") 
         for row in warped_or:
             np.savetxt(warped_file, row) 
         warped_file.close()
@@ -94,7 +94,7 @@ for image_name in files[0:2]:
         plt.show()
         
         
-        plt.imshow(h2-int1*mask, origin='lower', cmap='gray')
+        plt.imshow(h2-int1*mask, origin='lower', cmap='gray', vmin=-100, vmax=100)
         plt.colorbar()
         plt.show()
         

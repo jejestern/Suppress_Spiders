@@ -51,8 +51,8 @@ for image_name in files[0:3]:
         y_center = y_len/2 - 1
         
         # Choose the radial range
-        R_1 = 290
-        R_2 = 490
+        R_1 = 150
+        R_2 = 300
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -79,10 +79,10 @@ for image_name in files[0:3]:
         plt.ylabel('Radius')
         plt.colorbar(im)
         plt.tight_layout()
-        plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+        #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
         plt.show()
         
-        warped_file = open("rphi_plane_spline3_R150_R300.txt", "w") 
+        warped_file = open("rphi_plane_spline3.txt", "w") 
         for row in warped_or:
             np.savetxt(warped_file, row) 
         warped_file.close()

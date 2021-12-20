@@ -13,7 +13,7 @@ from matplotlib.colors import LogNorm
 shape = 150, 1413
 R_1, R_2 = 150, 300
 
-data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/rphi_plane_spline3_R150_R300.txt").reshape(shape)
+data = np.loadtxt("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/rphi_plane_spline3.txt").reshape(shape)
 
 # Fourier transform
 fourier = np.fft.fftshift(np.fft.fft2(data))
