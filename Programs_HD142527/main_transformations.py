@@ -53,6 +53,7 @@ for image_name in files[0:3]:
         # Choose the radial range
         R_1 = 150
         R_2 = 300
+        Imax = 20
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -60,7 +61,7 @@ for image_name in files[0:3]:
         mask_phi = angle_mask(phi_array, (0, 2*np.pi))
         mask = mask_r & mask_phi
         
-        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=3)
+        plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=Imax)
         plt.colorbar()
         plt.tight_layout()
         #plt.savefig("interpolation/HDimg_R150_R300.pdf")
@@ -74,7 +75,7 @@ for image_name in files[0:3]:
         aspect_value = (360/warped_shape[0])/((R_2-R_1)/warped_shape[1])
         fig, ax = plt.subplots(1,1, figsize=(8, 8*aspect_value))
         im = ax.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, 
-                       vmax= 3, extent=[0, 360, R_1, R_2])
+                       vmax= Imax, extent=[0, 360, R_1, R_2])
         plt.xlabel(r'$\varphi$ [degrees]')
         plt.ylabel('Radius')
         plt.colorbar(im)
@@ -89,7 +90,7 @@ for image_name in files[0:3]:
         print("The shape of the warped image is: ", warped.shape)
         
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
-        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=3)
+        plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=Imax)
         plt.colorbar()
         plt.show()
         

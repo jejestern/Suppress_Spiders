@@ -15,7 +15,14 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from transformations_functions import polar_corrdinates_grid, to_rphi_plane, radius_mask, angle_mask, from_rphi_plane
 from matplotlib.colors import LogNorm
+from scipy.optimize import curve_fit
 #from scipy import interpolate
+
+
+def e_func(x, a, b, c):
+
+    return a * np.exp(-b * x) + c
+
 
 
 # This part takes the argument and saves the folder 
@@ -100,7 +107,7 @@ for image_name in files[0:3]:
         
         # We cut out the star and insert it a lot less bright in the top left 
         # part of the image
-        intens = 10**(-5)
+        intens = 10**(-3)
         int1[550:950, 50:450] += int1[int(y_center-200):int(y_center+200),
                                      int(x_center-200):int(x_center+200)]*intens 
         
@@ -149,7 +156,56 @@ for image_name in files[0:3]:
         #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
         plt.show()
         
-"""      
+        """ 
+        We now want to apply different methods to the images (with and without 
+        model planet) to see what happens and if the stars flux apperture is 
+        conserved.
+        """
+        
+        # First we take out the intensity change in radial direction due to the
+        # star in the center, by using an exponential fit function.
+        
+        ## Sum up the image along the phi axis
+        r_trend = np.sum(warped_m_or, axis = 1)/warped_shape[0]
+        radi = np.arange(warped_shape[1])
+
+        ## Fitting an exponential
+        popt, pcov = curve_fit(e_func, radi, r_trend)
+
+        ## Plot the fit 
+        plt.figure()
+        plt.plot(radi, e_func(radi, *popt), 'r-', label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+        plt.plot(radi, r_trend, 'b.', label="intensity distribution of longest speckle")
+        plt.legend()
+        plt.show()
+
+        for i in range(warped_shape[0]):
+            warped_m_or[:,i] = warped_m_or[:,i] - e_func(radi, *popt)
+   
+        ## Plot the output
+        fourier_flat = np.fft.fftshift(np.fft.fft2(warped_m_or))
+        
+        plt.figure(figsize=(8, 16*aspect_value))
+
+        plt.subplot(211)
+        plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
+                   vmax= 2, extent=[0, 360, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.ylabel('Radius')
+        plt.colorbar()
+    
+        plt.subplot(212)
+        plt.imshow(abs(fourier_flat), origin='lower', cmap='gray', 
+                   norm=LogNorm(vmin=1), aspect=aspect_value, 
+                   extent=[0, 360, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.ylabel('Radius')
+        plt.colorbar()
+        
+        plt.tight_layout()
+        plt.show()
+
+"""    
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
         plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=Imax)
         plt.colorbar()
