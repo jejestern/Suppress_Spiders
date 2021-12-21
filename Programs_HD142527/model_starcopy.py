@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from transformations_functions import polar_corrdinates_grid, to_rphi_plane, radius_mask, angle_mask, from_rphi_plane
 from matplotlib.colors import LogNorm
 from scipy.optimize import curve_fit
-#from scipy import interpolate
+from aperture_fluxes import aperture_flux_image, aperture_flux_warped
 
 
 def e_func(x, a, b, c):
@@ -111,7 +111,14 @@ for image_name in files[0:3]:
         int1[550:950, 50:450] += int1[int(y_center-200):int(y_center+200),
                                      int(x_center-200):int(x_center+200)]*intens 
         
+        ## Computation of the aperture flux of the model planet
+        model_planet = [250, 750]
+        f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
+        print("The aperture flux of the model planet is: ", f_ap_im)
+        
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=Imax)
+        ap_im.plot(color ='r', lw=1.0)
+        annu_im.plot(color ='#0547f9', lw=1.0)
         plt.colorbar()
         plt.tight_layout()
         #plt.savefig("interpolation/HDimg_R150_R300.pdf")
@@ -120,15 +127,24 @@ for image_name in files[0:3]:
         warped_model = to_rphi_plane(int1, (x_len, y_len), R_1, R_2)
         warped_m_or = warped_model.T
         
+        ## Computation of the aperture flux of the model planet in the warped 
+        ## image
+        f_ap_w, ap_w_draw, annu_w_draw = aperture_flux_warped(warped_m_or, warped_shape, 
+                                                              R_1, aspect_value, 
+                                                              model_planet)
+        print("The aperture flux of the model planet in the warped image is: ", f_ap_w)
+        
         ## Fourier transform the warped image (model star)
         fourier_m_w = np.fft.fftshift(np.fft.fft2(warped_m_or))
         
-        ## Plotting the warped image and its fft (model star)
+        ## Plotting the warped image and its fft (model planet)
         plt.figure(figsize=(8, 16*aspect_value))
         
         plt.subplot(211)
         plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
                        vmax=Imax, extent=[0, 360, R_1, R_2])
+        ap_w_draw.plot(color ='r', lw=1.0)
+        annu_w_draw.plot(color ='#0547f9', lw=1.0)
         plt.xlabel(r'$\varphi$ [degrees]')
         plt.ylabel('Radius')
         plt.colorbar()
@@ -182,6 +198,13 @@ for image_name in files[0:3]:
         for i in range(warped_shape[0]):
             warped_m_or[:,i] = warped_m_or[:,i] - e_func(radi, *popt)
    
+        ## Computation of the aperture flux of the model planet in the flattened 
+        ## image
+        f_ap_f, ap_f_draw, annu_f_draw = aperture_flux_warped(warped_m_or, warped_shape, 
+                                                              R_1, aspect_value, 
+                                                              model_planet)
+        print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
+        
         ## Plot the output
         fourier_flat = np.fft.fftshift(np.fft.fft2(warped_m_or))
         
@@ -190,6 +213,8 @@ for image_name in files[0:3]:
         plt.subplot(211)
         plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
                    vmax= 2, extent=[0, 360, R_1, R_2])
+        ap_f_draw.plot(color ='r', lw=1.0)
+        annu_f_draw.plot(color ='#0547f9', lw=1.0)
         plt.xlabel(r'$\varphi$ [degrees]')
         plt.ylabel('Radius')
         plt.colorbar()
