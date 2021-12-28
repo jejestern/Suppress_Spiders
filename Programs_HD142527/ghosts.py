@@ -126,6 +126,9 @@ fmean_2_mean = np.mean(fmean_2)
 sigma_1_mean = np.mean(sigma_1)
 sigma_2_mean = np.mean(sigma_2)
 
+ratio_1_mean_err = ratio_1_mean * SN_1_mean/100
+ratio_2_mean_err = ratio_2_mean * SN_2_mean/100
+
 # Write the data in a txt file
 ghosts = open("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/aperture_photometry/ghosts.txt", "w")
 ghosts.write(str('image_names, SN of ghost 1, SN of ghost 2, ratio 1, ratio 2, fmean 1, fmean 2, sigma 1, sigma 2')+'\n')
@@ -138,8 +141,9 @@ ghosts.write(str(fmean_1)+'\n')
 ghosts.write(str(fmean_2)+'\n')
 ghosts.write(str(sigma_1)+'\n')   
 ghosts.write(str(sigma_2)+'\n')
-ghosts.write('Means: '+str(SN_1_mean)+' '+str(SN_2_mean)+' '+str(ratio_1_mean)
-             +' '+str(ratio_2_mean)+' '+str(fmean_1_mean)+' '+str(fmean_2_mean)
+ghosts.write('Means: '+str(SN_1_mean)+' '+str(SN_2_mean)+' '+str(ratio_1_mean)+
+             " +- "+str(ratio_1_mean_err)+' '+str(ratio_2_mean)+" +- "+
+             str(ratio_2_mean_err)+' '+str(fmean_1_mean)+' '+str(fmean_2_mean)
              +' '+str(sigma_1_mean)+' '+str(sigma_2_mean))
 ghosts.close()
 

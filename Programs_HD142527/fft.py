@@ -20,7 +20,7 @@ fourier = np.fft.fftshift(np.fft.fft2(data))
 
 # Plot the output
 aspect_value = 360/shape[1]
-plt.figure(figsize=(8/aspect_value, 8))
+plt.figure(figsize=(8, 8*aspect_value))
 
 plt.subplot(211)
 plt.imshow(data, origin='lower', aspect=aspect_value, vmin=0, vmax= 20, 
@@ -61,7 +61,7 @@ fourier = fourier*(mask_2 + mask_r)
 img_back = abs(np.fft.ifft2(fourier))
 
 # Plot the masked fourier transformed image and the IFFT of this
-plt.figure(figsize=(8/aspect_value, 8))
+plt.figure(figsize=(8, 8*aspect_value))
 
 plt.subplot(211)
 plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=LogNorm(vmin=1), aspect=1)

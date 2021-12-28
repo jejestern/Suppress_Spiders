@@ -209,12 +209,46 @@ for image_name in files[0:3]:
         fourier_flat = np.fft.fftshift(np.fft.fft2(warped_m_or))
         
         plt.figure(figsize=(8, 16*aspect_value))
+        Imax_small = 1
 
         plt.subplot(211)
         plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
-                   vmax= 2, extent=[0, 360, R_1, R_2])
+                   vmax= Imax_small, extent=[0, 360, R_1, R_2])
         ap_f_draw.plot(color ='r', lw=1.0)
         annu_f_draw.plot(color ='#0547f9', lw=1.0)
+        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.ylabel('Radius')
+        plt.colorbar()
+    
+        plt.subplot(212)
+        plt.imshow(abs(fourier_flat), origin='lower', cmap='gray', 
+                   norm=LogNorm(vmin=1), aspect=aspect_value, 
+                   extent=[0, 360, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.ylabel('Radius')
+        plt.colorbar()
+        
+        plt.tight_layout()
+        plt.show()
+        
+        ### Take out some structure via fft
+        fourier_flat[90:110, -1110:-800] = 1
+        fourier_flat[90:110, 800:1110] = 1
+        
+        fft_back = abs(np.fft.ifft2(fourier_flat))
+        
+        ## Computation of the aperture flux of the model planet in the flattened 
+        ## and FFT back image
+        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back, warped_shape, 
+                                                              R_1, aspect_value, 
+                                                              model_planet)
+        print("The aperture flux of the model planet in the flattened image is: ", f_ap_fft)
+        
+        plt.figure(figsize=(8, 16*aspect_value))
+
+        plt.subplot(211)
+        plt.imshow(fft_back, origin='lower', aspect=aspect_value, vmin=0, 
+                   vmax= Imax_small, extent=[0, 360, R_1, R_2])
         plt.xlabel(r'$\varphi$ [degrees]')
         plt.ylabel('Radius')
         plt.colorbar()
