@@ -232,8 +232,8 @@ for image_name in files[0:3]:
         plt.show()
         
         ### Take out some structure via fft
-        fourier_flat[90:110, -1110:-800] = 1
-        fourier_flat[90:110, 800:1110] = 1
+        fourier_flat[90:110, -1110:-1000] = 1
+        fourier_flat[90:110, 1000:1110] = 1
         
         fft_back = abs(np.fft.ifft2(fourier_flat))
         
