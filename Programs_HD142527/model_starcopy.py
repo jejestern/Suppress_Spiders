@@ -79,7 +79,7 @@ plt.ylabel('Radius')
 plt.colorbar()
         
 plt.subplot(212)
-plt.imshow(abs(fft_beams), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
+plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
            aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.xlabel(r'$\varphi$ [degrees]')
 plt.ylabel('Radius')
@@ -111,7 +111,7 @@ plt.ylabel('Radius')
 plt.colorbar()
         
 plt.subplot(212)
-plt.imshow(abs(fft_beamG), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
+plt.imshow(abs(fft_beamG + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
            aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.xlabel(r'$\varphi$ [degrees]')
 plt.ylabel('Radius')

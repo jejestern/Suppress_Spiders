@@ -67,7 +67,7 @@ plt.ylabel('Radius')
 plt.colorbar()
         
 plt.subplot(212)
-plt.imshow(abs(fft_beams), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
+plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
            aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.xlabel(r'$\varphi$ [degrees]')
 plt.ylabel('Radius')
@@ -99,7 +99,7 @@ plt.ylabel('Radius')
 plt.colorbar()
         
 plt.subplot(212)
-plt.imshow(abs(fft_beamG), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
+plt.imshow(abs(fft_beamG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
            aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.xlabel(r'$\varphi$ [degrees]')
 plt.ylabel('Radius')
@@ -108,4 +108,25 @@ plt.colorbar()
 plt.tight_layout()
 #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
 plt.show()
+
+
+radi = np.arange(warp_shape[1])
+phis = np.arange(warp_shape[0])
+middle = int(R_1 + (R_2 - R_1)/2)
+
+plt.figure()
+plt.plot(phis, beams[middle-R_1, :], label="beams")
+plt.plot(phis, beamG[middle-R_1, :], label="Gaussian beams")
+plt.title("Horizontal cut through the beam images")
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.semilogy(phis, abs(fft_beams[middle-R_1, :] + 0.0001), label="beams")
+plt.semilogy(phis, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
+plt.ylim((10**(-1), 10**(5)))
+plt.title("FFT of beam images")
+plt.legend()
+plt.show()
+
         
