@@ -59,6 +59,7 @@ warp_or = warp.T
 warp_shape = warp.shape
 
 aspect_value = (360/warp_shape[0])/((R_2-R_1)/warp_shape[1])
+aspect_rad = (2*np.pi/warp_shape[0])/((R_2-R_1)/warp_shape[1])
 
 # We insert beams at the positions of the spyders
 beams = warp_or.copy()
@@ -71,32 +72,38 @@ beams[:, 1767:1791] = 1
 fft_beams = np.fft.fftshift(np.fft.fft2(beams))
 
 # Create the axis labels for the fft image
-xf = np.fft.fftfreq(360, 360/warp_shape[0])
-xf = np.fft.fftshift(xf)
-yf = np.fft.fftfreq(R_2-R_1, (R_2-R_1)/warp_shape[1])
-yf = np.fft.fftshift(yf)
-print(xf)      
+phi_freq = np.fft.fftfreq(warp_shape[0], d=2*np.pi/warp_shape[0])
+phi_freq = np.fft.fftshift(phi_freq)
+radi_freq = np.fft.fftfreq(warp_shape[1])
+radi_freq = np.fft.fftshift(radi_freq)
+
+aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
+    (radi_freq[-1]-radi_freq[0])/warp_shape[1])
+    
 # Plotting the warped and fft of it
 plt.figure(figsize=(8, 16*aspect_value))
-        
+
 plt.subplot(211)
-plt.imshow(beams, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(beams, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
 #plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
  #          aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-           aspect=aspect_value, extent=[xf[0], xf[-1], yf[0], yf[-1]])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
-#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+#plt.savefig("fourier/HDwarped_R254_R454.pdf")
 plt.show()
 
 # We insert smoothed (gaussian) beams at the positions of the spyders
@@ -114,17 +121,20 @@ fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
 plt.figure(figsize=(8, 16*aspect_value))
         
 plt.subplot(211)
-plt.imshow(beamG, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(beamG, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
 plt.imshow(abs(fft_beamG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
@@ -133,24 +143,27 @@ plt.show()
 
 
 radi = np.arange(warp_shape[1])
-phis = np.arange(warp_shape[0])
+phis = np.arange(warp_shape[0])/warp_shape[0]*2*np.pi
 middle = int(R_1 + (R_2 - R_1)/2)
 
 plt.figure(figsize=(8, 16*aspect_value))
 plt.plot(phis, beams[middle-R_1, :], label="beams")
 plt.plot(phis, beamG[middle-R_1, :], label="Gaussian beams")
 plt.title("Horizontal cut through the beam images")
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.legend()
 plt.show()
 
 plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phis, abs(fft_beams[middle-R_1, :] + 0.0001), label="beams")
-plt.semilogy(phis, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
+plt.semilogy(phi_freq, abs(fft_beams[middle-R_1, :] + 0.0001), label="beams")
+plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
 plt.ylim((10**(-1), 10**(5)))
 plt.title("FFT of beam images")
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend()
 plt.show()
-"""
+
 # We insert smoothed (gaussian) simulated spyders at the positions of the spyders        
 spydG1 = gaussianSpyder(warp_or.copy(), 42, 11)
 spydG2 = gaussianSpyder(warp_or.copy(), 670, 16)
@@ -166,17 +179,21 @@ fft_spydG = np.fft.fftshift(np.fft.fft2(spydG))
 plt.figure(figsize=(8, 16*aspect_value))
         
 plt.subplot(211)
-plt.imshow(spydG, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(spydG, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
 plt.imshow(abs(fft_spydG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], 
+                                       radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
@@ -187,18 +204,20 @@ plt.show()
 y = 0            
 plt.figure(figsize=(8, 16*aspect_value))
 while y < (R_2-R_1): 
-    plt.plot(phis, spydG[y, :], label="Simulated spyders")
-    y += 15
+    plt.plot(phis, spydG[y, :], label="at y = %.0f" %(y+R_1))
+    y += 50
 plt.title("Horizontal cut through the beam images")
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.legend()
 plt.show()
 
 y = 0
 plt.figure(figsize=(8, 16*aspect_value))
 while y < (R_2-R_1)/2:
-    plt.semilogy(phis, abs(fft_spydG[y, :] + 0.0001), label ="radial pos. = %.2f" %(y+R_1))
-    y += 15
-plt.semilogy(phis, abs(fft_spydG[middle-R_1, :] + 0.0001), label="Centre")
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    y += 20
+plt.semilogy(phi_freq, abs(fft_spydG[middle-R_1, :] + 0.0001), label="radial freq. = 0")
 plt.ylim((10**(-1), 10**(5)))
 plt.title("FFT of beam images horizontal")
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -207,11 +226,10 @@ plt.show()
 x = 0
 plt.figure()
 while x < len(phis)/2:
-    plt.semilogy(radi, abs(fft_spydG[:, x] + 0.0001), label ="phi pos. = %.2f" %(x))
-    x += 200
-plt.semilogy(radi, abs(fft_spydG[:, int(len(phis)/2)] + 0.0001), label="Centre")
+    plt.semilogy(radi_freq, abs(fft_spydG[:, x] + 0.0001), label ="phi pos. = %.1f" %(phi_freq[x]))
+    x += 240
+plt.semilogy(radi_freq, abs(fft_spydG[:, int(len(phis)/2)] + 0.0001), label="phi pos. = 0")
 plt.ylim((10**(-1), 10**(5)))
 plt.title("FFT of beam images horizontal")
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
-"""
