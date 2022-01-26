@@ -57,6 +57,12 @@ warp_or = warp.T
 warp_shape = warp.shape
 
 aspect_value = (360/warp_shape[0])/((R_2-R_1)/warp_shape[1])
+aspect_rad = (2*np.pi/warp_shape[0])/((R_2-R_1)/warp_shape[1])
+
+
+radi = np.arange(warp_shape[1])
+phis = np.arange(warp_shape[0])/warp_shape[0]*2*np.pi
+middle = int(R_1 + (R_2 - R_1)/2)
 
 # We insert beams at the positions of the spyders
 beams = warp_or.copy()
@@ -67,26 +73,40 @@ beams[:, 1767:1791] = 1
         
 # Fourier transform the warped image with beams
 fft_beams = np.fft.fftshift(np.fft.fft2(beams))
-        
+
+# Create the axis labels for the fft image
+phi_freq = np.fft.fftfreq(warp_shape[0], d=2*np.pi/warp_shape[0])
+phi_freq = np.fft.fftshift(phi_freq)
+radi_freq = np.fft.fftfreq(warp_shape[1])
+radi_freq = np.fft.fftshift(radi_freq)
+
+aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
+    (radi_freq[-1]-radi_freq[0])/warp_shape[1])
+    
 # Plotting the warped and fft of it
 plt.figure(figsize=(8, 16*aspect_value))
-        
+
 plt.subplot(211)
-plt.imshow(beams, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(beams, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
+#plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
+ #          aspect=aspect_value, extent=[0, 360, R_1, R_2])
 plt.imshow(abs(fft_beams + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
-#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+#plt.savefig("fourier/HDwarped_R254_R454.pdf")
 plt.show()
 
 # We insert smoothed (gaussian) beams at the positions of the spyders
@@ -104,23 +124,25 @@ fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
 plt.figure(figsize=(8, 16*aspect_value))
         
 plt.subplot(211)
-plt.imshow(beamG, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(beamG, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
-plt.imshow(abs(fft_beamG + 0.0001), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+plt.imshow(abs(fft_beamG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
 #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
 plt.show()
-        
 
 
 
@@ -161,10 +183,9 @@ for image_name in files[0:3]:
         x_center = x_len/2 - 1
         y_center = y_len/2 - 1
         
-        # Choose the radial range
-        R_1 = 254
-        R_2 = 454
+        # Choose the intensity
         Imax = 5
+        Imax_small = 1
         
         # Define the corresponding polar coordinates to the x-y coordinates
         r_array, phi_array = polar_corrdinates_grid((x_len, y_len), (x_center, y_center))
@@ -191,17 +212,21 @@ for image_name in files[0:3]:
         plt.figure(figsize=(8, 16*aspect_value))
         
         plt.subplot(211)
-        plt.imshow(warped_or, origin='lower', aspect=aspect_value, vmin=0, 
-                       vmax=Imax, extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.imshow(warped_or, origin='lower', aspect=aspect_rad, vmin=0, 
+                       vmax=Imax, extent=[0, 2*np.pi, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [rad]')
         plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
+                   [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
         plt.colorbar()
         
         plt.subplot(212)
         plt.imshow(abs(fourier_w), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-                   aspect=aspect_value, extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
+                   aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], 
+                                               radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
         plt.colorbar()
         
         plt.tight_layout()
@@ -212,11 +237,11 @@ for image_name in files[0:3]:
         # We cut out the star and insert it a lot less bright in the top left 
         # part of the image
         intens = 10**(-3)
-        int1[550:950, 50:450] += int1[int(y_center-200):int(y_center+200),
-                                     int(x_center-200):int(x_center+200)]*intens 
+        int1[550:950, 50:450] += int1[int(y_center-200):int(y_center+200), 
+                                      int(x_center-200):int(x_center+200)]*intens 
         
         ## Computation of the aperture flux of the model planet
-        model_planet = [250, 750]
+        model_planet = [250, 750] #[300, 700] 
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet is: ", f_ap_im)
         
@@ -245,37 +270,43 @@ for image_name in files[0:3]:
         plt.figure(figsize=(8, 16*aspect_value))
         
         plt.subplot(211)
-        plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
-                       vmax=Imax, extent=[0, 360, R_1, R_2])
+        plt.imshow(warped_m_or, origin='lower', aspect=aspect_rad, vmin=0, 
+                       vmax=Imax, extent=[0, 2*np.pi, R_1, R_2])
         ap_w_draw.plot(color ='r', lw=1.0)
         annu_w_draw.plot(color ='#0547f9', lw=1.0)
-        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.xlabel(r'$\varphi$ [rad]')
         plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
+                   [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
         plt.colorbar()
         
         plt.subplot(212)
         plt.imshow(abs(fourier_m_w), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-                   aspect=aspect_value, extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
+                   aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], 
+                                               radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
         plt.colorbar()
-        
+       
         plt.tight_layout()
-        #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+        #plt.savefig("interpolation/HDwarped_R150_R300_15.pdf")
         plt.show()
-
+        """
         # Plot and calculate the fft(model_star)-fft 
         fft_model = fourier_m_w - fourier_w
         plt.figure(figsize=(8, 8*aspect_value))
         plt.imshow(abs(fft_model), origin='lower', cmap='gray', norm=LogNorm(vmin=1), 
-                   aspect=aspect_value, extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
+                   aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], 
+                                               radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
         plt.colorbar()
         plt.tight_layout()
         #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
         plt.show()
-        
+        """
         """ 
         We now want to apply different methods to the images (with and without 
         model planet) to see what happens and if the stars flux apperture is 
@@ -294,9 +325,14 @@ for image_name in files[0:3]:
 
         ## Plot the fit 
         plt.figure()
-        plt.plot(radi, e_func(radi, *popt), 'r-', label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
-        plt.plot(radi, r_trend, 'b.', label="intensity distribution along radial axis")
+        plt.plot(radi, r_trend, 'b.', 
+                 label="mean angular intensity distribution")
+        plt.plot(radi, e_func(radi, *popt), 'r-', 
+                 label='exponential fit') #': a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+        plt.xlabel(r'Radius')
+        plt.ylabel('Mean angular intensity')
         plt.legend()
+        #plt.savefig("interpolation/mean_angular_intensity_R150_300.pdf")
         plt.show()
 
         for i in range(warped_shape[0]):
@@ -313,35 +349,38 @@ for image_name in files[0:3]:
         fourier_flat = np.fft.fftshift(np.fft.fft2(warped_m_or))
         
         plt.figure(figsize=(8, 16*aspect_value))
-        Imax_small = 1
 
         plt.subplot(211)
-        plt.imshow(warped_m_or, origin='lower', aspect=aspect_value, vmin=0, 
-                   vmax= Imax_small, extent=[0, 360, R_1, R_2])
+        plt.imshow(warped_m_or, origin='lower', aspect=aspect_rad, vmin=0, 
+                   vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
         ap_f_draw.plot(color ='r', lw=1.0)
         annu_f_draw.plot(color ='#0547f9', lw=1.0)
-        plt.xlabel(r'$\varphi$ [degrees]')
+        plt.xlabel(r'$\varphi$ [rad]')
         plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
+                   [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
         plt.colorbar()
-    
+        
         plt.subplot(212)
         plt.imshow(abs(fourier_flat), origin='lower', cmap='gray', 
-                   norm=LogNorm(vmin=1), aspect=aspect_value, 
-                   extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
+                   norm=LogNorm(vmin=1), aspect=aspect_freq, 
+                   extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
         plt.colorbar()
         
         plt.tight_layout()
+        #plt.savefig("interpolation/HDflatten_R150_R300_4.pdf")
         plt.show()
         
         ## Investigate the shape and intensity of the spikes
         ## Plot the 
         plt.figure()
-        plt.plot(radi, warped_m_or[:, 42], '.', label="intensity distribution x=42")
-        plt.plot(radi, warped_m_or[:, 670], '.', label="intensity distribution x=670")
-        plt.plot(radi, warped_m_or[:, 1155], '.', label="intensity distribution x=1155")
-        plt.plot(radi, warped_m_or[:, 1779], '.', label="intensity distribution x=1779")
+        plt.plot(radi_freq, warped_m_or[:, 42], '.', label="intensity distribution x=42")
+        plt.plot(radi_freq, warped_m_or[:, 670], '.', label="intensity distribution x=670")
+        plt.plot(radi_freq, warped_m_or[:, 1155], '.', label="intensity distribution x=1155")
+        plt.plot(radi_freq, warped_m_or[:, 1779], '.', label="intensity distribution x=1779")
         plt.legend()
         plt.show()
         
