@@ -236,12 +236,12 @@ for image_name in files[0:3]:
         
         # We cut out the star and insert it a lot less bright in the top left 
         # part of the image
-        intens = 10**(-3)
+        intens = 0 #10**(-3)
         int1[550:950, 50:450] += int1[int(y_center-200):int(y_center+200), 
                                       int(x_center-200):int(x_center+200)]*intens 
         
         ## Computation of the aperture flux of the model planet
-        model_planet = [250, 750] #[300, 700] 
+        model_planet = gh_pos[0] #[250, 
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet is: ", f_ap_im)
         
@@ -384,42 +384,104 @@ for image_name in files[0:3]:
         plt.legend()
         plt.show()
         
+        ### Plot vertical and horizontal cuts throught the image and the FFT
+        y = 0            
+        plt.figure(figsize=(8, 16*aspect_value))
+        while y < (R_2-R_1): 
+            plt.plot(phis, warped_m_or[y, :], label="at y = %.0f" %(y+R_1))
+            y += 50
+        plt.title("Horizontal cut through the beam images")
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                          r'$3\pi/2$', r'$2\pi$'])
+        plt.legend()
+        plt.show()
+
+        y = 0
+        plt.figure(figsize=(8, 16*aspect_value))
+        while y < (R_2-R_1)/2:
+            plt.semilogy(phi_freq, abs(fourier_flat[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+            y += 20
+        plt.semilogy(phi_freq, abs(fourier_flat[middle-R_1, :] + 0.0001), label="radial freq. = 0")
+        plt.ylim((10**(-1), 10**(5)))
+        plt.title("FFT of beam images horizontal")  
+        plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.show()
+
+        x = 0
+        plt.figure()
+        while x < len(phis)/2:
+            plt.semilogy(radi_freq, abs(fourier_flat[:, x] + 0.0001), label ="phi pos. = %.1f" %(phi_freq[x]))
+            x += 240
+        plt.semilogy(radi_freq, abs(fourier_flat[:, int(len(phis)/2)] + 0.0001), label="phi pos. = 0")
+        plt.ylim((10**(-1), 10**(5)))
+        plt.title("FFT of beam images horizontal")
+        plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.show()
         
-        ### Take out some structure via fft
-        #fourier_flat[0:80, :] = 1
-        #fourier_flat[120:200, :] = 1
-        fourier_flat = fourier_flat - fft_beamG
         
-        fft_back = abs(np.fft.ifft2(fourier_flat))
+        ### Take out some structure via fft: SUBTRACTION of gaussian of the 
+        ### center frequencyies (radial)
+        w = 60
+        q = 100
+        spyd_center = fourier_flat[middle-R_1, :]
+        spyd_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_center[int(len(phis)/2)-
+                                                                         w:int(len(phis)/2)
+                                                                         +w]/fourier_flat[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
+
+        spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
+        spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
+
+        plt.figure(figsize=(8, 16*aspect_value))
+        plt.semilogy(phi_freq, abs(spyd_center), label="ratio")
+        #plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
+        #plt.xlim((-20, 20))
+        plt.ylim((10**(-1), 10**(2)))
+        plt.title("FFT ratio of beam images")
+        plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.legend()
+        plt.show()
+        
+        fourier_flat[middle-R_1, :] = spyd_center
+        fft_back_spyd_center = abs(np.fft.ifft2(fourier_flat))
         
         ## Computation of the aperture flux of the model planet in the flattened 
         ## and FFT back image
-        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back, warped_shape, 
-                                                              R_1, aspect_value, 
-                                                              model_planet)
-        print("The aperture flux of the model planet in the flattened image is: ", f_ap_fft)
-        
+        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back_spyd_center, 
+                                                                    warped_shape, R_1, 
+                                                                    aspect_value, 
+                                                                    model_planet)
+        print("The aperture flux of the model planet without spyders is: ", f_ap_fft)
+
+        # Plotting the back transformation
         plt.figure(figsize=(8, 16*aspect_value))
-
-        plt.subplot(211)
-        plt.imshow(fft_back, origin='lower', aspect=aspect_value, vmin=0, 
-                   vmax= Imax_small, extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
-        plt.colorbar()
-    
-        plt.subplot(212)
-        plt.imshow(abs(fourier_flat), origin='lower', cmap='gray', 
-                   norm=LogNorm(vmin=1), aspect=aspect_value, 
-                   extent=[0, 360, R_1, R_2])
-        plt.xlabel(r'$\varphi$ [degrees]')
-        plt.ylabel('Radius')
-        plt.colorbar()
         
-        plt.tight_layout()
-        plt.show()
+        plt.subplot(211)
+        plt.imshow(abs(fourier_flat + 0.0001), origin='lower', cmap='gray',  
+                   norm=LogNorm(vmin=1), aspect=aspect_freq, 
+                   extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
+        plt.colorbar()
 
-"""    
+        
+        plt.subplot(212)
+        plt.imshow(fft_back_spyd_center, origin='lower', aspect=aspect_rad, 
+                   vmin=0, vmax=1.0, extent=[0, 2*np.pi, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [rad]')
+        plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                          r'$3\pi/2$', r'$2\pi$'])
+        plt.colorbar()
+
+        plt.tight_layout()
+        #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+        plt.show()
+        
+"""          
+
         h2 = from_rphi_plane(warped, (x_len, y_len), R_1, R_2)
         plt.imshow(h2, origin='lower', cmap='gray', vmin=0, vmax=Imax)
         plt.colorbar()
