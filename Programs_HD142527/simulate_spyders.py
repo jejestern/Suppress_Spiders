@@ -10,6 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from transformations_functions import to_rphi_plane
+from scipy.optimize import curve_fit
+
+
+def e_func(x, a, b, c):
+
+    return  a * (x-b)**(-1) + c
 
 def distance(point1, point2):
     return np.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
@@ -275,6 +281,7 @@ plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
 
+
 x = 0
 plt.figure()
 while x < len(phis)/2:
@@ -287,12 +294,23 @@ plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
 
+## Fitting an exponential to the horizontal through the center frequency
+popt, pcov = curve_fit(e_func, radi_freq[middle-R_1+1:] , abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]))
+
+plt.figure()
+plt.semilogy(radi_freq[middle-R_1+1:], abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]), '.', label="phi pos. = 0")
+plt.semilogy(radi_freq[middle-R_1+1:], e_func(radi_freq[middle-R_1+1:], *popt), label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+#plt.ylim((10**(-1), 10**(5)))
+plt.title("FFT of beam images horizontal")
+plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.show()
 
 # RATIO of gaussian
-spyd_center = fft_spydG[middle-R_1, :]
+spyd_center = fft_spydG[middle-R_1, :] 
 spyd_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_center[int(len(phis)/2)
                                                                  -w:int(len(phis)/2)
-                                                                 +w]/fft_spydG[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
+                                                                 +w]/fft_beamG[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
 
 spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
 spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
@@ -323,7 +341,7 @@ plt.colorbar()
 
         
 plt.subplot(212)
-plt.imshow(fft_back_spyd_center, origin='lower', aspect=aspect_rad, vmin=0, vmax=1.0, 
+plt.imshow(fft_back_spyd_center, origin='lower', aspect=aspect_rad, vmin=0, vmax=0.5, 
            extent=[0, 2*np.pi, R_1, R_2])
 plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
@@ -334,3 +352,79 @@ plt.colorbar()
 plt.tight_layout()
 #plt.savefig("interpolation/HDwarped_R290_R490.pdf")
 plt.show()
+
+
+# Ratio in radial direction in order to make a Gaussian subtraction of all 
+# frequencies in radial direction (also the larger ones)
+ratio_gaussian = abs(fft_spydG[middle-R_1, int(len(phis)/2)])/abs(
+    fft_spydG[10, int(len(phis)/2)])
+small_gaussian = fft_beamG[middle-R_1, :] * ratio_gaussian
+
+y = 0
+plt.figure(figsize=(8, 16*aspect_value))
+while y < (R_2-R_1)/2:
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    y += 20
+#plt.semilogy(phi_freq, abs(fft_spydG[middle-R_1, :] + 0.0001), label="radial freq. = 0")
+#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beam")
+plt.semilogy(phi_freq, abs(small_gaussian + 0.0001), label="Gaussian beam")
+plt.ylim((10**(-1), 10**(3)))
+plt.title("FFT of beam images horizontal")
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.show()
+
+
+spyd_low = fft_spydG[:middle-R_1, :] 
+spyd_low[:, int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_low[:, int(len(phis)/2)
+                                                              -w:int(len(phis)/2)
+                                                              +w]/small_gaussian[int(len(phis)/2)-w:int(len(phis)/2)+w]
+spyd_high = fft_spydG[middle-R_1:, :] 
+spyd_high[:, int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_high[:, int(len(phis)/2)
+                                                                -w:int(len(phis)/2)
+                                                                +w]/small_gaussian[int(len(phis)/2)-w:int(len(phis)/2)+w]
+
+#spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
+#spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
+
+plt.figure(figsize=(8, 16*aspect_value))
+plt.semilogy(phi_freq, abs(spyd_low[5]), label="ratio")
+#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
+#plt.xlim((-20, 20))
+plt.ylim((10**(-1), 10**(2)))
+plt.title("FFT ratio of beam images")
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend()
+plt.show()
+
+fft_spydG[:middle-R_1, :] = spyd_low
+fft_spydG[middle-R_1:, :] = spyd_high
+fft_back_spyd = abs(np.fft.ifft2(fft_spydG))
+
+# Plotting the back transformation
+plt.figure(figsize=(8, 16*aspect_value))
+        
+plt.subplot(211)
+plt.imshow(abs(fft_spydG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
+plt.colorbar()
+
+        
+plt.subplot(212)
+plt.imshow(fft_back_spyd, origin='lower', aspect=aspect_rad, vmin=0, vmax=0.25, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
+plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
+plt.colorbar()
+
+plt.tight_layout()
+#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+plt.show()
+
+
+

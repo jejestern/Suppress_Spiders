@@ -428,7 +428,7 @@ for image_name in files[0:3]:
         spyd_center = fourier_flat[middle-R_1, :]
         spyd_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_center[int(len(phis)/2)-
                                                                          w:int(len(phis)/2)
-                                                                         +w]/fourier_flat[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
+                                                                         +w]/fft_beamG[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
 
         spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
         spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
