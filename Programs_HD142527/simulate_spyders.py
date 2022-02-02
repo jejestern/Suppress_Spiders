@@ -11,34 +11,13 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from transformations_functions import to_rphi_plane
 from scipy.optimize import curve_fit
+from filter_functions import gaussianBeam, gaussianSpyder
 
 
-def e_func(x, a, b, c):
+def oneover_x(x, a, b, c):
 
     return  a * (x-b)**(-1) + c
 
-def distance(point1, point2):
-    return np.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
-
-def gaussianBeam(base, x_position, D0):
-    rows, cols = base.shape
-    for x in range(cols):
-        base[:,x] = np.exp(((-distance((0,x), (0, x_position))**2)/(2*(D0**2))))
-    return base
-
-def gaussianSpyder(base, x_position, D0):
-    rows, cols = base.shape
-    y = 0
-    while y < rows: 
-        if D0 > 1:
-            D0 -= 0.08
-            
-        for x in range(cols):
-            base[y,x] = np.exp(((-distance((y,x), (y, x_position))**2)/(2*(D0**2))))
-            
-        y += 1
-            
-    return base
 
 
 # Create an image with only zeros with the same shape as the star images have
@@ -295,11 +274,11 @@ plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
 
 ## Fitting an exponential to the horizontal through the center frequency
-popt, pcov = curve_fit(e_func, radi_freq[middle-R_1+1:] , abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]))
+popt, pcov = curve_fit(oneover_x, radi_freq[middle-R_1+1:] , abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]))
 
 plt.figure()
 plt.semilogy(radi_freq[middle-R_1+1:], abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]), '.', label="phi pos. = 0")
-plt.semilogy(radi_freq[middle-R_1+1:], e_func(radi_freq[middle-R_1+1:], *popt), label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+plt.semilogy(radi_freq[middle-R_1+1:], oneover_x(radi_freq[middle-R_1+1:], *popt), label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
 #plt.ylim((10**(-1), 10**(5)))
 plt.title("FFT of beam images horizontal")
 plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
