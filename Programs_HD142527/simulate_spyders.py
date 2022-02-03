@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jan  4 15:21:00 2022
-
-@author: jeje
+Created on 2022-01-04
+Jennifer Studer <studerje@student.ethz.ch>
 """
 
 import numpy as np
