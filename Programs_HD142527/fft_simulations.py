@@ -45,11 +45,11 @@ def fourier(image, title):
     
     # Plot the horizontal cut thorugh the FFT
     plt.figure()
-    plt.semilogy(freq, abs(fourier_im[int(image.shape[0]/2), :] + 0.0001))
-    #plt.ylim((10**(0), 10**(3)))
-    plt.title("FFT horizontal cut at freq 0")
-    #plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-    #plt.legend()
+    plt.semilogy(freq, abs(fourier_im[int(image.shape[0]/2), :] + 0.0001), label='Intensity at frequency 0 (y-axis)')
+    #plt.ylim((10**(1.9), 10**(2.1)))
+    plt.xlabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+    plt.ylabel('Intensity')
+    plt.legend(loc='upper left')
     plt.tight_layout()
     plt.savefig("fourier/fft_simulation_cut"+ title +".pdf")
     plt.show()
@@ -62,19 +62,19 @@ sim_1[:, 10] = 1
 fourier(sim_1, "oneline")
 
 sim_2 = np.zeros((100, 100))
-i = 20
+i = 10
 while i < 100:
     sim_2[:, i] = 1
     i += 20
 fourier(sim_2, "morelines")
 
 sim_1 = np.zeros((100, 100))
-sim_1[:, 6:14] = 1
+sim_1[:, 5:15] = 1
 fourier(sim_1, "onebeam")
 
 sim_2 = np.zeros((100, 100))
-i = 20
+i = 10
 while i < 100:
-    sim_2[:, i-4:i+4] = 1
+    sim_2[:, i-5:i+5] = 1
     i += 20
 fourier(sim_2, "morebeams")

@@ -206,7 +206,7 @@ for image_name in files[0:3]:
             x += 240
         plt.semilogy(radi_freq, abs(fourier_flat[:, int(len(phis)/2)] + 0.0001), label="phi pos. = 0")
         plt.ylim((10**(-1), 10**(5)))
-        plt.title("FFT of beam images horizontal")
+        plt.title("FFT of beam images vertical")
         plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
@@ -325,6 +325,14 @@ for image_name in files[0:3]:
         plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.legend()
         plt.show()
+        
+        plt.figure()
+        plt.semilogy(radi_freq, abs(fourier_flat[:, int(len(phis)/2)] + 0.0001), label="vertical cut")
+        #plt.ylim((10**(-1), 10**(5)))
+        plt.title("FFT of beam images vertical")
+        plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.show()
+        
 
         fourier_flat[middle-R_1-h:middle-R_1, :] = spyd_low
         fourier_flat[middle-R_1:middle-R_1+h, :] = spyd_high
