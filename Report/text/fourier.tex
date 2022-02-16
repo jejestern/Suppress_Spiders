@@ -3,6 +3,7 @@ Our goal is to decrease the intensity of the spyders and speckles in the data. I
 In the following we are going to investigate the properties of a Fourier transformation and the effect of suppressing certain frequencies on the image plane.\\
 
 \subsection{Fourier Transformation of Lines and Beams}
+\label{FFT_Lines_Beams}
 We first want to investigate the effect of some simple signals in the image plane on the frequency plane. We choose these signals similar to the shape of the spyders or to the shape of a potential exoplanet, with the goal to identify similar characteristics in the frequency plane of the data.\\
 Firstly, we transform a single line (has the width of one pixel) in vertical or horizontal direction to the Fourier plane. A single line in vertical direction ($y$-axis) means that we have a constant signal along the $y$-axis, but we have a non-constant signal in $x$ direction, namely a one pixel wide peak at the $x$ position of the line. So we expect that all $y$-axis frequencies in the Fourier transformed image to be zero, this means that only at $y$ frequency zero we have non-zero values which describe the periodicity in $x$ direction.\\
 As we can see from figure \ref{fig:fft_line} the transformation of a single line results into a single line in the frequency plane. The line in the frequency plane is perpendicular to the line in the image plane and is located in the center. This confirms our expectations. 
@@ -69,4 +70,7 @@ where $G(\mu)$ and $F(\mu)$ are the Fourier transforms of $g(x)$ and $f(x)$ \cit
 		\label{fig:fft_beams_cut}
 \end{figure}
 
+\subsection{Fourier Transformation of Point Sources}
+
 \subsection{Simulation of Spyders}
+
