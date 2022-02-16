@@ -58,7 +58,7 @@ def fourier(image, title):
 
 
 sim_1 = np.zeros((100, 100))
-sim_1[:, 10] = 1
+sim_1[:, 20] = 1
 fourier(sim_1, "oneline")
 
 sim_2 = np.zeros((100, 100))
