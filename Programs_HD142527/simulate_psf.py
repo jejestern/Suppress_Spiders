@@ -47,6 +47,21 @@ warp_or = warp.T
 warp_shape = warp.shape
 
 aspect_value = (360/warp_shape[0])/((R_2-R_1)/warp_shape[1])
+aspect_rad = (2*np.pi/warp_shape[0])/((R_2-R_1)/warp_shape[1])
+
+radi = np.arange(warp_shape[1])
+phis = np.arange(warp_shape[0])/warp_shape[0]*2*np.pi
+middle = int(R_1 + (R_2 - R_1)/2)
+
+
+# Create the axis labels for the fft image
+phi_freq = np.fft.fftfreq(warp_shape[0], d=2*np.pi/warp_shape[0])
+phi_freq = np.fft.fftshift(phi_freq)
+radi_freq = np.fft.fftfreq(warp_shape[1])
+radi_freq = np.fft.fftshift(radi_freq)
+
+aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
+    (radi_freq[-1]-radi_freq[0])/warp_shape[1])
 
 
 # We insert smoothed (gaussian) beams at the positions of the spyders
@@ -62,17 +77,20 @@ fft_gauss = np.fft.fftshift(np.fft.fft2(gauss))
 plt.figure(figsize=(8, 16*aspect_value))
         
 plt.subplot(211)
-plt.imshow(gauss, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(gauss, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
         
 plt.subplot(212)
 plt.imshow(abs(fft_gauss + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
@@ -103,54 +121,61 @@ fft_psf = np.fft.fftshift(np.fft.fft2(warp_psf_or))
 plt.figure(figsize=(8, 16*aspect_value))
         
 plt.subplot(211)
-plt.imshow(warp_psf_or, origin='lower', aspect=aspect_value, vmin=0, vmax=Imax, 
-           extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
+plt.imshow(warp_psf_or, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.ylabel('Radius')
+plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
 plt.colorbar()
       
 plt.subplot(212)
 plt.imshow(abs(fft_psf + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_value, extent=[0, 360, R_1, R_2])
-plt.xlabel(r'$\varphi$ [degrees]')
-plt.ylabel('Radius')
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
-#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+plt.savefig("fourier/PSF_fourier.pdf")
 plt.show()
 
 
-radi = np.arange(warp_shape[1])
-phis = np.arange(warp_shape[0])
-middle = int(R_1 + (R_2 - R_1)/2)
 
-plt.figure(figsize=(8, 16*aspect_value))
-plt.plot(phis, gauss[position_y, :], label="Gaussian")
-plt.plot(phis, warp_psf_or[r_pos-R_1, :], label="PSF")
-plt.title("Horizontal cut")
+plt.figure(figsize=(8, 25*aspect_value))
+plt.plot(phis[int(len(phis)/16):int(len(phis)/4)], gauss[position_y, int(len(phis)/16):int(len(phis)/4)], label="Gaussian")
+plt.plot(phis[int(len(phis)/16):int(len(phis)/4)], warp_psf_or[r_pos-R_1, int(len(phis)/16):int(len(phis)/4)], label="PSF")
+#plt.title("Horizontal cut")
+plt.xticks([np.pi/8, np.pi/4, 3*np.pi/8, np.pi/2], [r'$\pi/8$', r'$\pi/4$', r'$3\pi/8$', r'$\pi/2$'])
+plt.xlabel(r'$\varphi$ [rad]')
 plt.legend()
+plt.savefig("fourier/PSF_cut_image.pdf")
 plt.show()
 
-plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phis, abs(fft_gauss[middle-R_1, :] + 0.0001), label="Gaussian")
-plt.semilogy(phis, abs(fft_psf[middle-R_1, :] + 0.0001), label="PSF")
+plt.figure(figsize=(8, 25*aspect_value))
+plt.semilogy(phi_freq, abs(fft_gauss[middle-R_1, :] + 0.0001), label="Gaussian")
+plt.semilogy(phi_freq, abs(fft_psf[middle-R_1, :] + 0.0001), label="PSF")
 #plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT")
+#plt.title("FFT")
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend()
+plt.savefig("fourier/PSF_cut_fourier.pdf")
 plt.show()
 
 plt.figure(figsize=(8, 16*aspect_value))
-plt.plot(radi, gauss[:, position_x], label="Gaussian")
-plt.plot(radi, warp_psf_or[:, round(phi_pos/360*warp_shape[0])], label="PSF")
+plt.plot(radi+R_1, gauss[:, position_x], label="Gaussian")
+plt.plot(radi+R_1, warp_psf_or[:, round(phi_pos/360*warp_shape[0])], label="PSF")
 plt.title("Vertical cut through")
+plt.xlabel('Radius')
 plt.legend()
 plt.show()
 
 plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(radi, abs(fft_gauss[:, int(len(phis)/2)] + 0.0001), label="Gaussian")
-plt.semilogy(radi, abs(fft_psf[:, int(len(phis)/2)] + 0.0001), label="PSF")
+plt.semilogy(radi_freq, abs(fft_gauss[:, int(len(phis)/2)] + 0.0001), label="Gaussian")
+plt.semilogy(radi_freq, abs(fft_psf[:, int(len(phis)/2)] + 0.0001), label="PSF")
 #plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT")
+#plt.title("FFT")
+plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
 plt.legend()
 plt.show()

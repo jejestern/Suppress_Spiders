@@ -1,12 +1,13 @@
 \section{Fourier Transformation}
-Our goal is to decrease the intensity of the spyders and speckles in the data. In our data from HD142527 the main disturbing effects are the spyders. With the transformation to the $r$-$\varphi$ plane the spyders now are parallel to the $r$-axis. When comparing different data sets from the same observation we find that the spyders change there position, but the distance between them stays the same. It is a periodic pattern. This brings up the idea, if the spyders are represented by a set of frequencies in the frequency plane. If this is the case, the suppressing of some of the frequencies in the frequency plane would result in a suppressing of the spyders in the image plane. The advantage of this method would be that it could be applied to the complete data set and one can ignore the fact that the spyders wander along the $\varphi$-axis. Also we should be able to suppress the spyders without destroying the information below them.\\
-In the following we are going to investigate the properties of a Fourier transformation and the effect of suppressing certain frequencies on the image plane.\\
+Our goal is to decrease the intensity of the spyders and speckles in the data. In our data from HD142527 the main disturbing effects are the spyders. With the transformation to the $r$-$\varphi$ plane the spyders now are parallel to the $r$-axis. When comparing different data sets from the same observation we find that the spyders change there position, but the distance between them stays the same. It is a periodic pattern. This brings up the idea, if the spyders are represented by a set of frequencies in the frequency plane. If this is the case, the suppression of some of the frequencies in the frequency plane would result in a suppression of the spyders in the image plane. The advantage of this method would be that it could be applied to the complete data set and one can ignore the fact that the spyders wander along the $\varphi$-axis. Also we should be able to suppress the spyders without destroying the information below them.\\
+In the following we are going to investigate the properties of a Fourier transformation on some specific image structure as lines, beams and point-like sources.\\
 
-\subsection{Fourier Transformation of Lines and Beams}
+\subsection{Lines and Beams}
 \label{FFT_Lines_Beams}
 We first want to investigate the effect of some simple signals in the image plane on the frequency plane. We choose these signals similar to the shape of the spyders or to the shape of a potential exoplanet, with the goal to identify similar characteristics in the frequency plane of the data.\\
 Firstly, we transform a single line (has the width of one pixel) in vertical or horizontal direction to the Fourier plane. A single line in vertical direction ($y$-axis) means that we have a constant signal along the $y$-axis, but we have a non-constant signal in $x$ direction, namely a one pixel wide peak at the $x$ position of the line. So we expect that all $y$-axis frequencies in the Fourier transformed image to be zero, this means that only at $y$ frequency zero we have non-zero values which describe the periodicity in $x$ direction.\\
-As we can see from figure \ref{fig:fft_line} the transformation of a single line results into a single line in the frequency plane. The line in the frequency plane is perpendicular to the line in the image plane and is located in the center. This confirms our expectations. 
+As we can see from figure \ref{fig:fft_line} the transformation of a single line results into a single line in the frequency plane. The line in the frequency plane is perpendicular to the line in the image plane and is located in the center. This confirms our expectations.\\
+Since we plot our results with a logarithmic scale, we need to keep in mind that $\log(0) = -\infty$ . In order to be able to plot our results we added a small value $\epsilon$ to our Fourier transformed results just before plotting.
 \begin{figure}[H]
 	\centering
 		\subfigure[]{\includegraphics[width=1.0\textwidth]{pics/fft_simulationoneline.pdf}}
@@ -14,14 +15,14 @@ As we can see from figure \ref{fig:fft_line} the transformation of a single line
 \caption{The image of a vertical line (a) and of a horizontal line (b) (images on the left side) are transformed to the frequency plane (images on the right side).}
 \label{fig:fft_line}
 \end{figure}
-To explore the frequency plane further we plot the intensity at $y$ equals zero along the $x$-axis (frequency plane of image shown in figure \ref{fig:fft_line} (a)). This describes the periodicity of the image in horizontal direction. As we see in figure \ref{fig:fft_line_cut} the intensity is almost constant, with a periodicity of $0.1 \frac{1}{\mathrm{px}}$. We conclude that if we have a single line at position $x_{\mathrm{line}}$ in the image plane we get a periodic signal in the Fourier plane where the wave length is given by $\frac{1}{x_{\mathrm{line}}}$. However, the amplitude of this signal is really small, since it is only one single line.  
+To explore the frequency plane further we plot the intensity at $y$ frequency equals zero along the $x$ frequency axis (frequency plane of image shown in figure \ref{fig:fft_line} (a)). This describes the periodicity of the image in horizontal direction. As we see in figure \ref{fig:fft_line_cut} the intensity along this axis is constant.
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=0.8\textwidth]{pics/fft_simulation_cutoneline.pdf}
-		\caption{The intensity of the Fourier transformed image in figure \ref{fig:fft_line} (a) at y frequency zero.}
+		\caption{The intensity of the Fourier transformed image in figure \ref{fig:fft_line} (a) at y frequency equals zero.}
 		\label{fig:fft_line_cut}
 \end{figure}
-As a next step we want to find out what happens, if we insert a periodic signal into the image plane in the form of equally spaced lines? Figure \ref{fig:fft_lines} shows an image where there are several vertical lines with a spacing of 20 pixels. As in the case of the single line the image is constant in $y$ direction and so all vertical frequencies are assigned zero. In $x$ direction the lines create a periodic signal with frequency $\frac{1}{20} = 0.05 \frac{1}{\mathrm{px}}$. On the right side of figure \ref{fig:fft_lines} we see the fourier transformation of the image with the equally spaced lines and figure \ref{fig:fft_lines_cut} shows a horizontal cut through the center. The periodic signal in the frequency plane has a sharp triangular shape. 
+As a next step we want to find out what happens, if we insert a periodic signal into the image plane in the form of equally spaced lines. Figure \ref{fig:fft_lines} shows an image where there are several vertical lines with a spacing of 20 pixels. As in the case of the single line the image is constant in $y$ direction and so all vertical frequencies are assigned zero. In $x$ direction the lines create a periodic signal with frequency $\frac{1}{20} = 0.05 \frac{1}{\mathrm{px}}$. On the right side of figure \ref{fig:fft_lines} we see the fourier transformation of the image with the equally spaced lines and figure \ref{fig:fft_lines_cut} shows a horizontal cut through the center. We see that only the pixels at $0.05n \frac{1}{\mathrm{px}}$ $\forall n \in \{0, 1, 2, ...\}$ are non-zero.
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/fft_simulationmorelines.pdf}
@@ -48,7 +49,7 @@ The spyders are not lines, but they have also an expansion into the horizontal, 
 		\caption{The intensity of the Fourier transformed image in figure \ref{fig:fft_beam} at y frequency zero.}
 		\label{fig:fft_beam_cut}
 \end{figure}
-As before with the lines we have a look at what happens if we have the several of this beams, again equally spaced with a spacing of 20 pixels. We find that this image, lets call it $h(x)$, is a convolution of the image with the equally spaced lines ($f(x)$) and the image with the single beam ($g(x)$), namely
+As before with the lines we have a look at what happens if we have several of this beams, again equally spaced with a spacing of 20 pixels. We find that this image, lets call it $h(x)$, is a convolution of the image with the equally spaced lines $f(x)$ and the image with the single beam $g(x)$, namely
 \begin{equation}
 	h(x) = (f * g)(x) = \int_{\mathbb{R}^n} f(\tau)g(x-\tau) \mathrm{d}\tau .
 \end{equation}
@@ -70,7 +71,28 @@ where $G(\mu)$ and $F(\mu)$ are the Fourier transforms of $g(x)$ and $f(x)$ \cit
 		\label{fig:fft_beams_cut}
 \end{figure}
 
-\subsection{Fourier Transformation of Point Sources}
+\subsection{Gaussian Beams}
 
-\subsection{Simulation of Spyders}
 
+\subsection{Point-Like Sources}
+In order to make sure that we are not going to suppress the signal of point-like sources as exoplanets we need to know how their signal is going to look like in the Fourier space.\\
+We investigate the signal of a Gaussian point source and of a point spread function (PSF). A PSF describes how a point source looks like after it has gone through an imaging system \cite{PSFwiki}, which is in our case the VLT telescope with its adaptive optic. In order to simulate the PSF we used the python package AOtools \cite{AOtools}.\\
+Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF profile in the image plane. We want to compare the Fourier transformation of the PSF to the one of the Gaussian profile, of which we expect the Fourier transform to be again a Gaussian profile. The image with the PSF and its Fourier transform is shown in figure \ref{fig:PSF_fourier}. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/PSF_cut_image.pdf}
+		\caption{A cut through a Gaussian profile and a PSF along the angular direction. Both profiles are rotationally symmetric.}
+		\label{fig:PSF_cut_image}
+\end{figure}
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/PSF_fourier.pdf}
+		\caption{An image with a PSF (top) is transformed into the frequency space (bottom).}
+		\label{fig:PSF_fourier}
+\end{figure}
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/PSF_cut_fourier.pdf}
+		\caption{}
+		\label{fig:PSF_cut_fourier}
+\end{figure}
