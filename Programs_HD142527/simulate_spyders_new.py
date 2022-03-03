@@ -95,7 +95,7 @@ ax[1].legend()
 
 plt.show()
     
-fig1, ax = plt.subplots(2, 1, figsize=(8, 42*aspect_value))  
+fig1, ax = plt.subplots(2, 1, figsize=(8, 45*aspect_value))  
 width_G = [5, 10, 15, 20]   
 for i in width_G:
         
@@ -112,6 +112,7 @@ for i in width_G:
     
 ax[0].set_title("Gaussian profiles")
 ax[0].set_xticks([np.pi/2, 3/4*np.pi], [r'$\pi/2$', r'$3\pi/4$'])
+ax[0].set_xlabel(r'$\varphi$ [rad]')
 ax[0].legend()
 
 #ax2.set_ylim((10**(-1), 10**(5)))
@@ -134,23 +135,37 @@ beamG = beamG1 + beamG2 + beamG3 + beamG4
   
 # Fourier transform the warped image with beams
 fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
+fft_G1 = np.fft.fftshift(np.fft.fft2(beamG1))
 
-plt.figure(figsize=(8, 16*aspect_value))
-plt.plot(phis, beamG[middle-R_1, :], label="Gaussian beams")
-plt.title("Horizontal cut through the beam images")
-plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+# We want to plot  the mean of the fft
+fft_mean = fft_beamG[middle-R_1, :].copy()
+for i in range(len(fft_mean)):
+    if i > 100 and i < len(fft_mean) - 100:
+        fft_mean[i] = np.mean(fft_mean[i-4:i+4])
+
+fig2, ax2 = plt.subplots(2, 1, figsize=(8, 48*aspect_value))  
+ax2[0].plot(phis, beamG[middle-R_1, :], label="Gaussian spyders")
+ax2[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
                                                   r'$3\pi/2$', r'$2\pi$'])
-plt.legend()
-plt.show()
-
-plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
+ax2[0].set_xlabel(r'$\varphi$ [rad]')
+ax2[0].legend(loc='upper right')
+        
+ax2[1].semilogy(phi_freq[900:-900], abs(fft_beamG[middle-R_1, 900:-900] + 0.0001), label="FFT")
+ax2[1].semilogy(phi_freq[900:-900], abs(fft_mean[900:-900] + 0.0001), label="Averaged FFT")
+ax2[1].semilogy(phi_freq[900:-900], abs(fft_G1[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile")
 #plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT of beam images")
-plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend()
-plt.show()
+ax2[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax2[1].legend()
 
+plt.tight_layout()
+plt.savefig("fourier/Gaussian_fourspyders.pdf")
+plt.show()
+"""
+fft_back= abs(np.fft.ifft(fft_G1[middle-R_1, :]))
+plt.figure()
+plt.plot(phis, fft_back)
+plt.show()
+"""
 # We insert smoothed (gaussian) beams at the positions of the spyders
 beamG1 = gaussianBeam(warp_or.copy(), spos[0], 10)
 beamG2 = gaussianBeam(warp_or.copy(), spos[1], 10)
