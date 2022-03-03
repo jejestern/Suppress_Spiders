@@ -34,7 +34,6 @@ def aperture_flux_warped(im_warped, w_shape, r_start, aspect_value, object_posit
     
     # Calculate object position in polar coordinates
     r_pos, phi_pos = xy_to_rphi(object_positions[0]-511, object_positions[1]-511)
-    phi_pos = phi_pos*180/np.pi
     
     # Calculate the aperture and annulus for plotting
     aper_draw = EllipticalAperture([phi_pos, r_pos], aperture_rad*aspect_value, 
@@ -43,7 +42,7 @@ def aperture_flux_warped(im_warped, w_shape, r_start, aspect_value, object_posit
                                   15*aspect_value, 15, 10)
     
     # Calculate the aperture sum of the model planet in the warped image
-    warped_pos = [phi_pos/360*w_shape[0], r_pos-r_start]
+    warped_pos = [phi_pos/(2*np.pi)*w_shape[0], r_pos-r_start]
     aper = CircularAperture(warped_pos, aperture_rad)
     annu = CircularAnnulus(warped_pos, 10, 15)
 

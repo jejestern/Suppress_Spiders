@@ -33,7 +33,7 @@ zeros = np.zeros((x_len, y_len))
 # Choose the radial range into which we are warping the image
 R_1 = 254
 R_2 = 454
-Imax = 1.0
+Imax = 0.1
 """        
 # Plot the created image  
 plt.imshow(zeros, origin='lower', cmap='gray', vmin=0, vmax=Imax)

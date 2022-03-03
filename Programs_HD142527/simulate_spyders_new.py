@@ -509,4 +509,3 @@ for image_name in files[0:3]:
         plt.savefig("fourier/warped_254_454.pdf")
         plt.show()
 
-        
