@@ -7,10 +7,12 @@ Jennifer Studer <studerje@student.ethz.ch>
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+from astropy.io import fits
 from matplotlib.colors import LogNorm
 from transformations_functions import to_rphi_plane
 from scipy.optimize import curve_fit
-from filter_functions import gaussianBeam, gaussianSpyder
+from filter_functions import gaussianBeam, gaussianSpyder, Gaussian1D, e_func
 
 
 def oneover_x(x, a, b, c):
@@ -59,8 +61,9 @@ radi_freq = np.fft.fftshift(radi_freq)
 aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
     (radi_freq[-1]-radi_freq[0])/warp_shape[1])
     
-
-spos = [42, 670]
+shift = 50 # We use a small shift, so that the position of the first spyder is 
+           # not crossing the image borders
+spos = [42+shift, 670+shift]
 degsym = 180/360*warp_shape[0]
 
 fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))    
@@ -92,29 +95,32 @@ ax[1].legend()
 
 plt.show()
     
-fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))  
+fig1, ax = plt.subplots(2, 1, figsize=(8, 42*aspect_value))  
 width_G = [5, 10, 15, 20]   
 for i in width_G:
         
     img_G = gaussianBeam(warp_or.copy(), spos[1], i)
     
-    ax[0].plot(phis[int(degsym/2):int(degsym)], img_G[middle-R_1, int(degsym/2):int(degsym)], label="Gaussian beams")
+    ax[0].plot(phis[int(degsym/2):int(3/4*degsym)], 
+               img_G[middle-R_1, int(degsym/2):int(3/4*degsym)], label=r"$\sigma$ = %.3f" %(i/warp_shape[0]*2*np.pi))
     
     # Fourier transform the warped image with beams
     fft_G = np.fft.fftshift(np.fft.fft2(img_G))
     
-    ax[1].semilogy(phi_freq, abs(fft_G[middle-R_1, :] + 0.0001), label="Gaussian beams")
+    ax[1].semilogy(phi_freq, abs(fft_G[middle-R_1, :] + 0.0001), label=r"$\sigma$ = %.3f" %(i/warp_shape[0]*2*np.pi))
     
     
-ax[0].set_title("Horizontal cut through")
-ax[0].set_xticks([np.pi/2, np.pi], [r'$\pi/2$', r'$\pi$'])
+ax[0].set_title("Gaussian profiles")
+ax[0].set_xticks([np.pi/2, 3/4*np.pi], [r'$\pi/2$', r'$3\pi/4$'])
 ax[0].legend()
 
 #ax2.set_ylim((10**(-1), 10**(5)))
-ax[1].set_title("FFT of beam images")
+ax[1].set_title("FFT")
 ax[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 ax[1].legend()
 
+plt.tight_layout()
+plt.savefig("fourier/Gauss_diffwidths.pdf")
 plt.show()
 
 
@@ -124,7 +130,7 @@ beamG2 = gaussianBeam(warp_or.copy(), spos[1], 12)
 beamG3 = gaussianBeam(warp_or.copy(), spos[0]+degsym, 12)
 beamG4 = gaussianBeam(warp_or.copy(), spos[1]+degsym, 12)
 
-beamG = beamG2 + beamG3 + beamG4
+beamG = beamG1 + beamG2 + beamG3 + beamG4
   
 # Fourier transform the warped image with beams
 fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
@@ -427,4 +433,80 @@ plt.tight_layout()
 plt.show()
 
 """
+########## The image path of the images taken in the P2 mode ############
+path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
+files = os.listdir(path)
 
+for image_name in files[0:3]:
+    if image_name.endswith("1.fits"): 
+        # Reading in the images from camera 1
+        img_data = fits.getdata(path + "/" + image_name, ext=0)
+        fits.info(path + "/" + image_name)
+
+        # Vertical flip image data to have the same convention as ds9
+        #axis2fl=int(img_data.ndim-2)
+        #print('axis to flip:',axis2fl)
+        #img_ori = np.flip(img_data, axis2fl)
+
+        # Choose the intensity 1
+        int1 = img_data[0,:,:]
+        
+        x_len, y_len = int1.shape
+        x_center = x_len/2 - 1
+        y_center = y_len/2 - 1
+        
+        # Choose the intensity
+        Imax = 5
+        Imax_small = 1
+
+        # Warp the image to the r-phi Plane    
+        warped = to_rphi_plane(int1, (x_len, y_len), R_1, R_2)
+        warped_shape = warped.shape
+        warped = warped.T
+        
+        # We take out the intensity change in radial direction due to the
+        # star in the center, by using an exponential fit function.
+        
+        ## Sum up the image along the phi axis
+        r_trend = np.sum(warped, axis = 1)/warped_shape[0]
+
+        ## Fitting an exponential and subtract it from the warped image
+        popt, pcov = curve_fit(e_func, radi, r_trend)
+
+        for i in range(warped_shape[0]):
+            warped[:,i] = warped[:,i] - e_func(radi, *popt)
+        
+        # We create a Gaussian profile
+        beamG1 = gaussianBeam(warped.copy(), spos[0], 10)
+
+        beamG = Gaussian1D(phis.copy(), int(2.4*degsym/4), 8)*2.7
+
+
+        plt.figure(figsize=(8, 21*aspect_value))
+        plt.plot(phis[int(degsym/2):int(3/4*degsym)], warped[1, int(degsym/2):int(3/4*degsym)], label="Image intensity at radius 255")
+        plt.plot(phis[int(degsym/2):int(3/4*degsym)], beamG[int(degsym/2):int(3/4*degsym)], label="Gaussian fit")
+        #plt.title("Horizontal cut through the beam images")
+        plt.xticks([np.pi/2, 3/4*np.pi], [r'$\pi/2$', r'$3\pi/4$'])
+        plt.xlabel(r'$\varphi$ [rad]')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("fourier/spyder_gaussian.pdf")
+        plt.show()
+        
+        
+        # Plotting the back transformation
+        plt.figure(figsize=(8, 10*aspect_value))
+
+        plt.imshow(warped, origin='lower', aspect=aspect_rad, vmin=0, vmax=2, 
+                   extent=[0, 2*np.pi, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [rad]')
+        plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                          r'$3\pi/2$', r'$2\pi$'])
+        plt.colorbar()
+        
+        plt.tight_layout()
+        plt.savefig("fourier/warped_254_454.pdf")
+        plt.show()
+
+        

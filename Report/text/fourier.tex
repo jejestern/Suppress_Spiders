@@ -1,10 +1,10 @@
 \section{Fourier Transformation}
-Our goal is to decrease the intensity of the spyders and speckles in the data. In our data from HD142527 the main disturbing effects are the spyders. With the transformation to the $r$-$\varphi$ plane the spyders now are parallel to the $r$-axis. When comparing different data sets from the same observation we find that the spyders change there position, but the distance between them stays the same. It is a periodic pattern. This brings up the idea, if the spyders are represented by a set of frequencies in the frequency plane. If this is the case, the suppression of some of the frequencies in the frequency plane would result in a suppression of the spyders in the image plane. The advantage of this method would be that it could be applied to the complete data set and one can ignore the fact that the spyders wander along the $\varphi$-axis. Also we should be able to suppress the spyders without destroying the information below them.\\
+Our goal is to decrease the intensity of the spiders and speckles in the data. In our data from HD142527 the main disturbing effects are the spiders. With the transformation to the $r$-$\varphi$ plane the spiders now are parallel to the $r$-axis. When comparing different data sets from the same observation we find that the spiders change there position, but the distance between them stays the same. It is a periodic pattern. This brings up the idea, if the spiders are represented by a set of frequencies in the frequency plane. If this is the case, the suppression of some of the frequencies in the frequency plane would result in a suppression of the spiders in the image plane. The advantage of this method would be that it could be applied to the complete data set and one can ignore the fact that the spiders wander along the $\varphi$-axis. Also we should be able to suppress the spiders without destroying the information below them.\\
 In the following we are going to investigate the properties of a Fourier transformation on some specific image structure as lines, beams and point-like sources.\\
 
 \subsection{Lines and Beams}
 \label{FFT_Lines_Beams}
-We first want to investigate the effect of some simple signals in the image plane on the frequency plane. We choose these signals similar to the shape of the spyders or to the shape of a potential exoplanet, with the goal to identify similar characteristics in the frequency plane of the data.\\
+We first want to investigate the effect of some simple signals in the image plane on the frequency plane. We choose these signals similar to the shape of the spiders or to the shape of a potential exoplanet, with the goal to identify similar characteristics in the frequency plane of the data.\\
 Firstly, we transform a single line (has the width of one pixel) in vertical or horizontal direction to the Fourier plane. A single line in vertical direction ($y$-axis) means that we have a constant signal along the $y$-axis, but we have a non-constant signal in $x$ direction, namely a one pixel wide peak at the $x$ position of the line. So we expect that all $y$-axis frequencies in the Fourier transformed image to be zero, this means that only at $y$ frequency zero we have non-zero values which describe the periodicity in $x$ direction.\\
 As we can see from figure \ref{fig:fft_line} the transformation of a single line results into a single line in the frequency plane. The line in the frequency plane is perpendicular to the line in the image plane and is located in the center. This confirms our expectations.\\
 Since we plot our results with a logarithmic scale, we need to keep in mind that $\log(0) = -\infty$ . In order to be able to plot our results we added a small value $\epsilon$ to our Fourier transformed results just before plotting.
@@ -36,7 +36,7 @@ As a next step we want to find out what happens, if we insert a periodic signal 
 		\label{fig:fft_lines_cut}
 \end{figure}
 In the appendix \ref{almostPeriod} we show, what happens if one line in the periodic image is missing and thus the signal is not completely periodic. We find that the treshold raises up to a higher value.\\
-The spyders are not lines, but they have also an expansion into the horizontal, so we are also interested to see the Fourier transform of a single beam. We investigate the image of a beam (stair function) with a width of 10 pixels, placed at $x=10$. Figure \ref{fig:fft_beam} shows the corresponding image and its Fourier transform. As with the lines the only frequencies in the frequency plane with a non-zero value are along the $y=0 \frac{1}{\mathrm{px}}$ frequency axis. Figure \ref{fig:fft_beam_cut} shows this axis in more detail. In contrast to the frequency plane of the line we have a signal which is stronger for central frequencies and decreases slightly for larger frequencies. Additionally we have strong minima at $0.1 n$ $\forall n \in \mathbb{N}$, where the position of the minima is given by one over the width of the beam.
+The spiders are not lines, but they have also an expansion into the horizontal, so we are also interested to see the Fourier transform of a single beam. We investigate the image of a beam (stair function) with a width of 10 pixels, placed at $x=10$. Figure \ref{fig:fft_beam} shows the corresponding image and its Fourier transform. As with the lines the only frequencies in the frequency plane with a non-zero value are along the $y=0 \frac{1}{\mathrm{px}}$ frequency axis. Figure \ref{fig:fft_beam_cut} shows this axis in more detail. In contrast to the frequency plane of the line we have a signal which is stronger for central frequencies and decreases slightly for larger frequencies. Additionally we have strong minima at $0.1 n$ $\forall n \in \mathbb{N}$, where the position of the minima is given by one over the width of the beam.
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/fft_simulationonebeam.pdf}
@@ -72,12 +72,37 @@ where $G(\mu)$ and $F(\mu)$ are the Fourier transforms of $g(x)$ and $f(x)$ \cit
 \end{figure}
 
 \subsection{Gaussian Beams}
-
+Before we have looked at beams with a stair function shape, but the spiders in our data do not have this stair function shape. In order to have a more realistic approximation we assume the spiders in our simulation to be Gaussian along the radial direction. We calculate the Gaussian profile from 
+\begin{equation}
+	f(x) = \exp \left(-\frac{(x-\mu)^2}{2 \sigma^2} \right)
+\end{equation}
+where $\mu$ is the mean (location) and $\sigma$ is the standard deviation (width). \\
+Also we change to the image format of the warped image which is not quadratic but rectangular. Four our simulations we choose the radius range 254 to 454 pixels and compare it to the data from HD142527 in this range, which can be seen in figure \ref{fig:warped_254_454}. We have chosen the radius range such that the ghosts lie within it and one of the ghost is in the center of the radius range. So that latter on we can make sure, that we are able to suppress the signal from the spiders without loosing much of the ghosts which we use to simulate a really bright exoplanet. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/warped_254_454.pdf}
+		\caption{An image of HD142527 which is warped to the $r$-$\varphi$ plane and the radial intensity drop-off is subtracted.}
+		\label{fig:warped_254_454}
+\end{figure}
+Figure \ref{fig:spider_gaussian} shows one of the spiders in a cutout from the image. We can see from the figure that a Gaussian is a good approximation for the shape of the spiders in radial direction.
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/spyder_gaussian.pdf}
+		\caption{A cutout of the image intensity of HD142527 at radius 255, where we see one of the spiders and a Gaussian profile at the same position as the spider is. We can see that the Gaussian is a good approximation for the shape of the spider.}
+		\label{fig:spider_gaussian}
+\end{figure}
+We know that the Fourier transformation of a Gaussian profile is again a Gaussian profile and from the previous subsection we know that the Fourier transform does not depend on the location from the beam, but on the width and of it. The spyders in our data all have different widths. In figure \ref{fig:Gauss_diffwidths} we plot four Gaussian profiles with different widths and their Fourier transforms. We see that indeed the Fourier transform of a Gaussian profile is also Gaussian (keep in mind that the plot is logarithmic) and that the width of the Gaussian profile is inverse proportional to the width of its Fourier transform as it already was the case for the stair function beams. Namely that the width of the Fourier transformed Gaussian $w_{FFT} = \frac{1}{\sigma} \frac{1}{\mathrm{px}}$, where $w_{FFT}$ marks the x-position where the Fourier transformed is again zero. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/Gauss_diffwidths.pdf}
+		\caption{Gaussian profiles with different widths (top) and the respective Fourier transforms (bottom).}
+		\label{fig:Gauss_diffwidths}
+\end{figure} 
 
 \subsection{Point-Like Sources}
 In order to make sure that we are not going to suppress the signal of point-like sources as exoplanets we need to know how their signal is going to look like in the Fourier space.\\
 We investigate the signal of a Gaussian point source and of a point spread function (PSF). A PSF describes how a point source looks like after it has gone through an imaging system \cite{PSFwiki}, which is in our case the VLT telescope with its adaptive optic. In order to simulate the PSF we used the python package AOtools \cite{AOtools}.\\
-Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF profile in the image plane. We want to compare the Fourier transformation of the PSF to the one of the Gaussian profile, of which we expect the Fourier transform to be again a Gaussian profile. The image with the PSF and its Fourier transform is shown in figure \ref{fig:PSF_fourier}. Figure \ref{fig:PSF_cut_fourier} shows the Fourier transform of a Gaussian profile and the PSF at radial frequency zero. As expected the Gaussian profile stays Gaussian in the frequency space (keep in mind that the plot is logarithmic). The Fourier transform of the PSF produces the same intensity for radial and angular frequency zero, but it decreases slower and has some local maxima. The two local maxima at each side of the global maximum produce a specific pattern which is completely different to what we get from the spyders and might be helpful to extract information about point sources from the frequency plane.  
+Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF profile in the image plane. We want to compare the Fourier transformation of the PSF to the one of the Gaussian profile, of which we expect the Fourier transform to be again a Gaussian profile. The image with the PSF and its Fourier transform is shown in figure \ref{fig:PSF_fourier}. Figure \ref{fig:PSF_cut_fourier} shows the Fourier transform of a Gaussian profile and the PSF at radial frequency zero. As expected the Gaussian profile stays Gaussian in the frequency space. The Fourier transform of the PSF produces the same intensity for radial and angular frequency zero, but it decreases slower and has some local maxima. The two local maxima at each side of the global maximum produce a specific pattern which is completely different to what we get from the spiders and might be helpful to extract information about point sources from the frequency plane.  
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/PSF_cut_image.pdf}

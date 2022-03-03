@@ -9,7 +9,6 @@ Created on Wed Feb  2 14:17:46 2022
 import numpy as np
 
 
-
 def e_func(x, a, b, c):
 
     return a * np.exp(-b * x) + c
@@ -36,3 +35,10 @@ def gaussianSpyder(base, x_position, D0):
         y += 1
             
     return base
+
+def Gaussian1D(base, mu, D0):
+    rows = len(base)
+    for x in range(rows):
+        base[x] = np.exp(-(x - mu)**2/(2*(D0**2)))
+    return base
+
