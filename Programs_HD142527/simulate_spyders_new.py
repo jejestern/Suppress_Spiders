@@ -64,7 +64,7 @@ aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
 shift = 50 # We use a small shift, so that the position of the first spyder is 
            # not crossing the image borders
 #degn = 90/360*warp_shape[0]
-spos = [42+shift,  670+shift]   
+spos = [42+shift,  670+shift]
 degsym = 180/360*warp_shape[0]
 print(warp_shape[0])
 fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))    
@@ -97,7 +97,8 @@ ax[1].legend()
 plt.show()
     
 fig1, ax = plt.subplots(2, 1, figsize=(8, 45*aspect_value))  
-width_G = [5, 10, 15, 20]   
+width_G = [5, 10, 15, 20] 
+
 for i in width_G:
         
     img_G = gaussianBeam(warp_or.copy(), spos[1], i)
@@ -145,7 +146,7 @@ for i in range(len(fft_mean)):
         fft_mean[i] = np.mean(fft_mean[i-4:i+4])
 
 fig2, ax2 = plt.subplots(2, 1, figsize=(8, 48*aspect_value))  
-ax2[0].plot(phis, beamG[middle-R_1, :], label="Gaussian spyders")
+ax2[0].plot(phis, beamG[middle-R_1, :], label="Gaussian spyders $\sigma$ = %.3f" %(12/warp_shape[0]*2*np.pi))
 ax2[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
                                                   r'$3\pi/2$', r'$2\pi$'])
 ax2[0].set_xlabel(r'$\varphi$ [rad]')
@@ -154,7 +155,6 @@ ax2[0].legend(loc='upper right')
 ax2[1].semilogy(phi_freq[900:-900], abs(fft_beamG[middle-R_1, 900:-900] + 0.0001), label="FFT")
 #ax2[1].semilogy(phi_freq[900:-900], abs(fft_mean[900:-900] + 0.0001), label="Averaged FFT")
 ax2[1].semilogy(phi_freq[900:-900], abs(fft_G1[middle-R_1, 900:-900] + 0.0001), 'tab:green', label="FFT of Gaussian profile")
-#plt.ylim((10**(-1), 10**(5)))
 ax2[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 ax2[1].legend()
 
@@ -170,30 +170,43 @@ plt.show()
 
 # We insert smoothed (gaussian) beams at the positions of the spyders
 beamG1 = gaussianBeam(warp_or.copy(), spos[0], 10)
-beamG2 = gaussianBeam(warp_or.copy(), spos[1], 10)
+beamG2 = gaussianBeam(warp_or.copy(), spos[1], 15)
 beamG3 = gaussianBeam(warp_or.copy(), spos[0]+degsym, 20)
-beamG4 = gaussianBeam(warp_or.copy(), spos[1]+degsym, 12)
+beamG4 = gaussianBeam(warp_or.copy(), spos[1]+degsym, 5)
 
-beamG = beamG2 + beamG3
+beamG = beamG1 + beamG2 + beamG3 + beamG4
   
 # Fourier transform the warped image with beams
 fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
 
-plt.figure(figsize=(8, 16*aspect_value))
-plt.plot(phis, beamG[middle-R_1, :], label="Gaussian beams")
-plt.title("Horizontal cut through the beam images")
-plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
-                                                  r'$3\pi/2$', r'$2\pi$'])
-plt.legend()
-plt.show()
+# We want to plot  the mean of the fft
+fft_mean = fft_beamG[middle-R_1, :].copy()
+for i in range(len(fft_mean)):
+    if i > 100 and i < len(fft_mean) - 100:
+        fft_mean[i] = np.mean(fft_beamG[middle-R_1, i-4:i+4])
 
-plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
-#plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT of beam images")
-plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend()
+fig3, ax3 = plt.subplots(2, 1, figsize=(8, 50*aspect_value))  
+ax3[0].plot(phis, beamG[middle-R_1, :], 
+            label=r"Gaussian spyders: $\sigma_1$ = %.3f, $\sigma_2$ = %.3f, $\sigma_3$ = %.3f, $\sigma_4$ = %.3f" 
+            %(10/warp_shape[0]*2*np.pi, 15/warp_shape[0]*2*np.pi, 20/warp_shape[0]*2*np.pi, 
+              5/warp_shape[0]*2*np.pi))
+ax3[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
+ax3[0].set_xlabel(r'$\varphi$ [rad]')
+ax3[0].legend(loc='upper right')
+
+ax3[1].semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="FFT")
+#ax3[1].semilogy(phi_freq, abs(fft_mean + 0.0001), label="Averaged FFT")
+ax3[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax3[1].legend()
+plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
 plt.show()
+"""
+fft_back= abs(np.fft.ifft(fft_mean))
+plt.figure()
+plt.plot(phis, fft_back)
+plt.show()
+"""
 """
 # RATIO of gaussian
 w = 60

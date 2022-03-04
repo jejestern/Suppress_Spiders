@@ -110,11 +110,20 @@ When we go back to the setting we have in our simulations of the spyders, we do 
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/Gaussian_fourspyders90.pdf}
-		\caption{The top shows a function with four Gaussian profiles which every 90 degrees. The Fourier transform of this is shown in blue in the bottom image. Additionally we plot in green the Fourier transform of a single Gaussian profile.}
+		\caption{The top shows a function with four Gaussian profiles every 90 degrees. The Fourier transform of this is shown in blue in the bottom image. Additionally we plot in green the Fourier transform of a single Gaussian profile.}
 		\label{fig:Gauss_fourspyders90}
 \end{figure} 
 
-As a next step we want to include the fact, that the spyders have different widths. 
+As a next step we want to include the fact, that the spyders have different widths, see figure \ref{fig:Gaussian_fourdiffspyders}. As we saw from figure \ref{fig:Gauss_diffwidths} the width of the Gaussian mainly influences the width of the Fourier transformed Gaussian and its height. As before we can use the linearity of the Fourier transformation, but now we add up four different Gaussian profiles. Therefore the resulting Fourier transform has the width of the Fourier transform of the thinnest Gaussian profile and the height of the Fourier Transform from the thickest Gaussian profile. We see that the oscillation caused by the convolutions only starts to play a role when the intensity from the respective profile is large enough. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/Gaussian_fourdiffspyders.pdf}
+		\caption{The top shows a function with four Gaussian profiles of different widths which have a 180 degrees symmetry. The Fourier transform of this is shown in the bottom image.}
+		\label{fig:Gaussian_fourdiffspyders}
+\end{figure} 
+In conclusion we can say that for four spyders with a 180 degrees symmetry which have different widths the important frequencies are around the center frequencies. Also the oscillations are due to the different widths not really strong, so that the intensity could also be approximated by the mean value to cancel out the oscillations.  
+
+\subsection{Spyders}
 
 \subsection{Point-Like Sources}
 In order to make sure that we are not going to suppress the signal of point-like sources as exoplanets we need to know how their signal is going to look like in the Fourier space.\\
