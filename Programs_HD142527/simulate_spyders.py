@@ -101,7 +101,7 @@ beamG2 = gaussianBeam(warp_or.copy(), 670, 16)
 beamG3 = gaussianBeam(warp_or.copy(), 1155, 12)
 beamG4 = gaussianBeam(warp_or.copy(), 1779, 12)
 
-beamG = beamG1 #+ beamG2 + beamG3 + beamG4
+beamG = beamG1 + beamG2 + beamG3 + beamG4
   
 # Fourier transform the warped image with beams
 fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))

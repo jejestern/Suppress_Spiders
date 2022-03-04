@@ -63,9 +63,10 @@ aspect_freq = ((phi_freq[-1]-phi_freq[0])/warp_shape[0])/(
     
 shift = 50 # We use a small shift, so that the position of the first spyder is 
            # not crossing the image borders
-spos = [42+shift, 670+shift]
+#degn = 90/360*warp_shape[0]
+spos = [42+shift,  670+shift]   
 degsym = 180/360*warp_shape[0]
-
+print(warp_shape[0])
 fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))    
 for i in range(4):
     deg = 0
@@ -151,8 +152,8 @@ ax2[0].set_xlabel(r'$\varphi$ [rad]')
 ax2[0].legend(loc='upper right')
         
 ax2[1].semilogy(phi_freq[900:-900], abs(fft_beamG[middle-R_1, 900:-900] + 0.0001), label="FFT")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_mean[900:-900] + 0.0001), label="Averaged FFT")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_G1[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile")
+#ax2[1].semilogy(phi_freq[900:-900], abs(fft_mean[900:-900] + 0.0001), label="Averaged FFT")
+ax2[1].semilogy(phi_freq[900:-900], abs(fft_G1[middle-R_1, 900:-900] + 0.0001), 'tab:green', label="FFT of Gaussian profile")
 #plt.ylim((10**(-1), 10**(5)))
 ax2[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 ax2[1].legend()
@@ -166,6 +167,7 @@ plt.figure()
 plt.plot(phis, fft_back)
 plt.show()
 """
+
 # We insert smoothed (gaussian) beams at the positions of the spyders
 beamG1 = gaussianBeam(warp_or.copy(), spos[0], 10)
 beamG2 = gaussianBeam(warp_or.copy(), spos[1], 10)
