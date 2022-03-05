@@ -152,7 +152,7 @@ for i in range(len(fft_mean)):
         fft_mean[i] = np.mean(fft_mean[i-4:i+4])
 
 fig2, ax2 = plt.subplots(2, 1, figsize=(8, 48*aspect_value))  
-ax2[0].plot(phis, beamG[middle-R_1, :], label="Gaussian spyders $\sigma$ = %.3f" %(12/warp_shape[0]*2*np.pi))
+ax2[0].plot(phis, beamG[middle-R_1, :], label="Gaussian spiders $\sigma$ = %.3f" %(12/warp_shape[0]*2*np.pi))
 ax2[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
                                                   r'$3\pi/2$', r'$2\pi$'])
 ax2[0].set_xlabel(r'$\varphi$ [rad]')
@@ -196,7 +196,7 @@ for i in range(len(fft_mean)):
 
 fig3, ax3 = plt.subplots(2, 1, figsize=(8, 50*aspect_value))  
 ax3[0].plot(phis, beamG[middle-R_1, :], 
-            label=r"Gaussian spyders: $\sigma_1$ = %.3f, $\sigma_2$ = %.3f, $\sigma_3$ = %.3f, $\sigma_4$ = %.3f" 
+            label=r"Gaussian spiders: $\sigma_1$ = %.3f, $\sigma_2$ = %.3f, $\sigma_3$ = %.3f, $\sigma_4$ = %.3f" 
             %(10/warp_shape[0]*2*np.pi, 15/warp_shape[0]*2*np.pi, 20/warp_shape[0]*2*np.pi, 
               5/warp_shape[0]*2*np.pi))
 ax3[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
@@ -254,6 +254,7 @@ plt.ylim((-0.5, 0.5))
 plt.colorbar()
 
 plt.tight_layout()
+plt.savefig("fourier/simulated_spyder.pdf")
 plt.show()
 
 
