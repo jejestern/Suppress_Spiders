@@ -22,15 +22,18 @@ def gaussianBeam(base, x_position, D0):
         base[:,x] = np.exp(((-distance((0,x), (0, x_position))**2)/(2*(D0**2))))
     return base
 
-def gaussianSpyder(base, x_position, D0):
+def gaussianSpyder(base, x_position, D0, I):
     rows, cols = base.shape
     y = 0
     while y < rows: 
-        if D0 > 1:
-            D0 -= 0.08
+        if D0 > 5:
+            D0 -= 0.03
+            
+        if I > 0.5:
+            I -= 0.018
             
         for x in range(cols):
-            base[y,x] = np.exp(((-distance((y,x), (y, x_position))**2)/(2*(D0**2))))
+            base[y,x] = I*np.exp(((-distance((y,x), (y, x_position))**2)/(2*(D0**2))))
             
         y += 1
             
