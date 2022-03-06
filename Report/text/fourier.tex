@@ -130,12 +130,29 @@ Finally we also need to take into account that the spiders have different intens
 In conclusion we can say that for four spiders with a 180 degrees symmetry which have different widths and different heights the important frequencies are around the center frequencies. Also the strength of the oscillations are due to the different widths and heights not really strong, so that the intensity could also be approximated by the mean value to cancel out the oscillations.  
 
 \subsection{Spiders}
-
+For the simulation of the spiders we use the knowledge which we have gained before from the Gaussian beams. In angular direction the spiders have a profile which is similar to a Gaussian, we therefore use Gaussian profiles for the simulation. In radial direction the spiders get thinner and their intensity decreases. Additionally all spiders have different widths and heights/intensities. Figure \ref{fig:simulated_spyder} shows the simulation of the spiders and the Fourier transformation of it. We see that in contrast to the Fourier transformation of the beams, Gaussian or stair function, there are not only non-zero frequencies at radial frequency zero, but they spread into all radial frequencies around the central angular frequencies. This radial spread is caused by the change of the width and intensity in radial direction.\\
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/simulated_spyder.pdf}
 		\caption{For a better understanding we simulate the spiders (top) and Fourier transform it (bottom).}
 		\label{fig:simulated_spyder}
+\end{figure}
+For a better understanding of the Fourier transformation, we plot the Fourier transform at different radial and angular frequencies, see figure \ref{fig:simspi_angularfreq} and \ref{fig:simspi_radialfreq}.\\
+We find that the intensities at radial frequency zero are the same as if we the spiders would be Gaussian beams, with the intensity and widths being constant in radial direction. This means the width is defined by the inverse of the width of the smallest spider and the shape around the peak is dominated by the Fourier transform of the thickest spider. The maximal intensity is a sum of all Fourier transformed Gaussian profiles and the oscillations are due to the distances between the spiders. \\
+For radial frequencies other than zero the intensity decreases rapidly to a small value and then stays constant, see figure \ref{fig:simspi_radialfreq}. This can also be seen in figure \ref{fig:simspi_angularfreq}, and therefore the important frequencies are for radial frequencies larger/smaller than approximately -0.6/0.6 $\frac{1}{\mathrm{px}}$ and for angular frequencies larger/smaller than approximately -30/30 $\frac{1}{\mathrm{rad}}$.
+\begin{figure}[H]
+	\centering
+		\subfigure[]{\includegraphics[width=1.0\textwidth]{pics/simspi_angularfreq.pdf}}
+		\subfigure[]{\includegraphics[width=1.0\textwidth]{pics/simspi_angularfreq_enlarged.pdf}}
+\caption{The Fourier transform from figure \ref{fig:simulated_spyder} at different angular frequencies and a Gaussian profile as reference (a) and an enlarged view of it (b). }
+\label{fig:simspi_angularfreq}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/simspi_radialfreq.pdf}
+		\caption{The Fourier transform from figure \ref{fig:simspi_radialfreq} at different radial frequencies.}
+		\label{fig:simspi_radialfreq}
 \end{figure}
 
 \subsection{Point-Like Sources}

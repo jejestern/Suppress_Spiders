@@ -39,9 +39,9 @@ def gaussianSpyder(base, x_position, D0, I):
             
     return base
 
-def Gaussian1D(base, mu, D0):
+def Gaussian1D(base, mu, D0, I=1):
     rows = len(base)
     for x in range(rows):
-        base[x] = np.exp(-(x - mu)**2/(2*(D0**2)))
+        base[x] = I*np.exp(-(x - mu)**2/(2*(D0**2)))
     return base
 

@@ -263,38 +263,69 @@ plt.figure(figsize=(8, 16*aspect_value))
 while y < (R_2-R_1): 
     plt.plot(phis, spydG[y, :], label="at y = %.0f" %(y+R_1))
     y += 50
-plt.title("Horizontal cut through the beam images")
+plt.title("Horizontal cut through the spiders")
 plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
                                                   r'$3\pi/2$', r'$2\pi$'])
 plt.legend()
 plt.show()
 
-y = 0
-plt.figure(figsize=(8, 16*aspect_value))
-while y < (R_2-R_1)/2:
+
+gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), 68, 10**4)
+
+y = int((R_2-R_1)/2)
+plt.figure(figsize=(8, 24*aspect_value))
+while y > 0:
     plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
-    y += 20
-plt.semilogy(phi_freq, abs(fft_spydG[middle-R_1, :] + 0.0001), label="radial freq. = 0")
-#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beam")
+    if y == int((R_2-R_1)/2):
+        y -= 1
+    elif abs(radi_freq[y]) < 0.04:
+        y -= 5
+    else:
+        y -= 40
+plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
 #plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT of beam images horizontal")
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_angularfreq.pdf")
+plt.show()
+
+# The same as before, but with an enlarged x-range
+y = int((R_2-R_1)/2)
+plt.figure(figsize=(8, 24*aspect_value))
+while y > 0:
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    if y == int((R_2-R_1)/2):
+        y -= 1
+    elif abs(radi_freq[y]) < 0.04:
+        y -= 5
+    else:
+        y -= 40
+plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
+plt.xlim((-60, 60))
+plt.ylim((10**(-4), 2*10**(4)))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_angularfreq_enlarged.pdf")
 plt.show()
 
 
-x = 0
-plt.figure()
-while x < len(phis)/2:
-    plt.semilogy(radi_freq, abs(fft_spydG[:, x] + 0.0001), label ="phi pos. = %.1f" %(phi_freq[x]))
-    x += 240
-plt.semilogy(radi_freq, abs(fft_spydG[:, int(len(phis)/2)] + 0.0001), label="phi pos. = 0")
+x = int(len(phis)/2)
+plt.figure(figsize=(8, 5))
+while x > 0:
+    plt.semilogy(radi_freq, abs(fft_spydG[:, x] + 0.0001), label ="phi pos. = %.i" %(phi_freq[x]))
+    if abs(phi_freq[x]) > 50:
+        x -= 500
+    else:
+        x -= 80
 #plt.ylim((10**(-1), 10**(5)))
-plt.title("FFT of beam images horizontal")
 plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_radialfreq.pdf")
 plt.show()
-"""
+
 ## Fitting an exponential to the horizontal through the center frequency
 popt, pcov = curve_fit(oneover_x, radi_freq[middle-R_1+1:] , abs(fft_spydG[middle-R_1+1:, int(len(phis)/2)]))
 
@@ -304,131 +335,11 @@ plt.semilogy(radi_freq[middle-R_1+1:], oneover_x(radi_freq[middle-R_1+1:], *popt
 #plt.ylim((10**(-1), 10**(5)))
 plt.title("FFT of beam images horizontal")
 plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-plt.show()
-
-# RATIO of gaussian
-spyd_center = fft_spydG[middle-R_1, :] 
-spyd_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_center[int(len(phis)/2)
-                                                                 -w:int(len(phis)/2)
-                                                                 +w]/fft_beamG[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
-
-spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
-spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
-
-plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phi_freq, abs(spyd_center), label="ratio")
-#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
-#plt.xlim((-20, 20))
-plt.ylim((10**(-1), 10**(2)))
-plt.title("FFT ratio of beam images")
-plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend()
-plt.show()
-
-fft_spydG[middle-R_1, :] = spyd_center
-fft_back_spyd_center = abs(np.fft.ifft2(fft_spydG))
-
-# Plotting the back transformation
-plt.figure(figsize=(8, 16*aspect_value))
-        
-plt.subplot(211)
-plt.imshow(abs(fft_spydG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
-plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
-plt.ylim((-0.5, 0.5))
-plt.colorbar()
-
-        
-plt.subplot(212)
-plt.imshow(fft_back_spyd_center, origin='lower', aspect=aspect_rad, vmin=0, vmax=0.5, 
-           extent=[0, 2*np.pi, R_1, R_2])
-plt.xlabel(r'$\varphi$ [rad]')
-plt.ylabel('Radius')
-plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
-                                                  r'$3\pi/2$', r'$2\pi$'])
-plt.colorbar()
-
-plt.tight_layout()
-#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
+plt.legend(loc='upper right')
 plt.show()
 
 
-# Ratio in radial direction in order to make a Gaussian subtraction of all 
-# frequencies in radial direction (also the larger ones)
-ratio_gaussian = abs(fft_spydG[middle-R_1, int(len(phis)/2)])/abs(
-    fft_spydG[10, int(len(phis)/2)])
-small_gaussian = fft_beamG[middle-R_1, :] * ratio_gaussian
-
-y = 0
-plt.figure(figsize=(8, 16*aspect_value))
-while y < (R_2-R_1)/2:
-    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
-    y += 20
-#plt.semilogy(phi_freq, abs(fft_spydG[middle-R_1, :] + 0.0001), label="radial freq. = 0")
-#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beam")
-plt.semilogy(phi_freq, abs(small_gaussian + 0.0001), label="Gaussian beam")
-plt.ylim((10**(-1), 10**(3)))
-plt.title("FFT of beam images horizontal")
-plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-plt.show()
-
-
-spyd_low = fft_spydG[:middle-R_1, :] 
-spyd_low[:, int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_low[:, int(len(phis)/2)
-                                                              -w:int(len(phis)/2)
-                                                              +w]/small_gaussian[int(len(phis)/2)-w:int(len(phis)/2)+w]
-spyd_high = fft_spydG[middle-R_1:, :] 
-spyd_high[:, int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_high[:, int(len(phis)/2)
-                                                                -w:int(len(phis)/2)
-                                                                +w]/small_gaussian[int(len(phis)/2)-w:int(len(phis)/2)+w]
-
-#spyd_center[:int(len(phis)/2)-w] = spyd_center[:int(len(phis)/2)-w]/q
-#spyd_center[int(len(phis)/2)+w:] = spyd_center[int(len(phis)/2)+w:]/q
-
-plt.figure(figsize=(8, 16*aspect_value))
-plt.semilogy(phi_freq, abs(spyd_low[5]), label="ratio")
-#plt.semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="Gaussian beams")
-#plt.xlim((-20, 20))
-plt.ylim((10**(-1), 10**(2)))
-plt.title("FFT ratio of beam images")
-plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.legend()
-plt.show()
-
-fft_spydG[:middle-R_1, :] = spyd_low
-fft_spydG[middle-R_1:, :] = spyd_high
-fft_back_spyd = abs(np.fft.ifft2(fft_spydG))
-
-# Plotting the back transformation
-plt.figure(figsize=(8, 16*aspect_value))
-        
-plt.subplot(211)
-plt.imshow(abs(fft_spydG + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
-           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
-plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
-plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
-plt.ylim((-0.5, 0.5))
-plt.colorbar()
-
-        
-plt.subplot(212)
-plt.imshow(fft_back_spyd, origin='lower', aspect=aspect_rad, vmin=0, vmax=0.25, 
-           extent=[0, 2*np.pi, R_1, R_2])
-plt.xlabel(r'$\varphi$ [rad]')
-plt.ylabel('Radius')
-plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
-                                                  r'$3\pi/2$', r'$2\pi$'])
-plt.colorbar()
-
-plt.tight_layout()
-#plt.savefig("interpolation/HDwarped_R290_R490.pdf")
-plt.show()
-
-"""
-########## The image path of the images taken in the P2 mode ############
+########## The image path of the images taken in the P2 mode #################
 path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
 files = os.listdir(path)
 
