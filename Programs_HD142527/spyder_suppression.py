@@ -25,7 +25,6 @@ R_2 = 454
 Imax = 5
 Imax_small = 1
 Imin_small = -1
-
         
 
 
