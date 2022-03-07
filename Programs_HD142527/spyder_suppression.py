@@ -13,7 +13,7 @@ from transformations_functions import polar_corrdinates_grid, to_rphi_plane, rad
 from matplotlib.colors import LogNorm
 from scipy.optimize import curve_fit
 from aperture_fluxes import aperture_flux_image, aperture_flux_warped
-from filter_functions import e_func, gaussianBeam
+from filter_functions import e_func, Gaussian1D
 
 
 
@@ -24,16 +24,17 @@ R_2 = 454
 # Choose the intensity
 Imax = 5
 Imax_small = 1
+Imin_small = -1
 
         
 
 
-########## The image path of the images taken in the P2 mode ############
+########## The image path of the images taken in the P2 mode ##################
 path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
 files = os.listdir(path)
 
 # We define the positions of the ghosts
-gh_pos = [(891.0, 600.0), (213.0, 387.0)]
+gh_pos = [(891.0, 599.0), (213.0, 387.0)]
 
 # Create a list in which we can save the information of the fft of the warped image
 aper_origin = []
@@ -68,7 +69,7 @@ for image_name in files[0:3]:
         mask = mask_r & mask_phi
         
         ## Computation of the aperture flux of the ghost
-        model_planet = gh_pos[0] 
+        model_planet = gh_pos[1] 
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
         aper_origin.append(f_ap_im)
@@ -131,6 +132,7 @@ for image_name in files[0:3]:
                                                               R_1, aspect_rad, 
                                                               model_planet)
         print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
+        print("This corresponds to 100 %")
         aper_flat.append(f_ap_f)
 
         ## Plot the output and its fft
@@ -139,7 +141,7 @@ for image_name in files[0:3]:
         plt.figure(figsize=(8, 16*aspect_value))
 
         plt.subplot(211)
-        plt.imshow(warped, origin='lower', aspect=aspect_rad, vmin=0, 
+        plt.imshow(warped, origin='lower', aspect=aspect_rad, vmin=Imin_small, 
                    vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
         ap_f_draw.plot(color ='r', lw=1.0)
         annu_f_draw.plot(color ='#0547f9', lw=1.0)
@@ -159,30 +161,67 @@ for image_name in files[0:3]:
         plt.colorbar()
  
         plt.tight_layout()
-        #plt.savefig("interpolation/HDflatten_R150_R300_4.pdf")
+        plt.savefig("suppression/HDflatten_R254_R454_-1to1.pdf")
+        plt.show()
+        
+        ## Plot the frequency ranges
+        y = int((R_2-R_1)/2)
+        plt.figure(figsize=(8, 24*aspect_value))
+        while y > 0:
+            plt.semilogy(phi_freq, abs(fourier[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
+            if y == int((R_2-R_1)/2):
+                y -= 1
+            elif abs(radi_freq[y]) < 0.02:
+                y -= 5
+            else:
+                y -= 40
+        plt.xlim((-30, 30))
+        plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+        plt.savefig("suppression/rad0.pdf")
+        plt.show()
+        
+        x = int(len(phis)/2)
+        plt.figure(figsize=(8, 5))
+        while x > 0:
+            plt.semilogy(radi_freq, abs(fourier[:, x]), label ="phi pos. = %.i" %(phi_freq[x]))
+            if abs(phi_freq[x]) > 20:
+                x -= 500
+            else:
+                x -= 60
+        #plt.ylim((10**(-1), 10**(5)))
+        plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+        plt.savefig("suppression/ang0.pdf")
         plt.show()
         
         
         ## Set everything outside a specific area to zero
         neg_r = 40
         neg_a = 300
-        q = 1000
-        fourier[:middle-R_1-neg_r, :] = fourier[:middle-R_1-neg_r, :]/q
-        fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]/q
-        fourier[:, :int(len(phis)/2)-neg_a] = fourier[:,  :int(len(phis)/2)-neg_a]/q
-        fourier[:, int(len(phis)/2)+neg_a:] = fourier[:, int(len(phis)/2)+neg_a:]/q
+        q = 10**(-3)
+        fourier[:middle-R_1-neg_r, :] = fourier[:middle-R_1-neg_r, :]*q
+        fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
+        fourier[:, :int(len(phis)/2)-neg_a] = fourier[:,  :int(len(phis)/2)-neg_a]*q
+        fourier[:, int(len(phis)/2)+neg_a:] = fourier[:, int(len(phis)/2)+neg_a:]*q
+        
+        # Inverse FFT after setting the edges to a smaaaall value
+        warped_back = abs(np.fft.ifft2(fourier))
 
         ## Computation of the aperture flux of the model planet after background=0
-        f_ap_b, _, _ = aperture_flux_warped(warped, warped_shape, 
+        f_ap_b, _, _ = aperture_flux_warped(warped_back, warped_shape, 
                                                               R_1, aspect_rad, 
                                                               model_planet)
-        print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
-        aper_flat.append(f_ap_f)
+        print("The aperture flux of the model planet concidering only central frequencies: ", f_ap_b)
+        print("This corresponds to ", round(100/f_ap_f*f_ap_b, 3), " %")
+        aper_flat.append(f_ap_b)
         
         plt.figure(figsize=(8, 16*aspect_value))
 
         plt.subplot(211)
-        plt.imshow(warped, origin='lower', aspect=aspect_rad, vmin=0, 
+        plt.imshow(warped_back, origin='lower', aspect=aspect_rad, vmin=Imin_small, 
                    vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
         plt.xlabel(r'$\varphi$ [rad]')
         plt.ylabel('Radius')
@@ -203,45 +242,153 @@ for image_name in files[0:3]:
         #plt.savefig("interpolation/HDflatten_R150_R300_4.pdf")
         plt.show()
       
-"""         
+        
         # Subtract Gaussian 
         ### Take out some structure via fft: SUBTRACTION of gaussian of the 
         ### center frequencyies (radial)
-        w = 59 # With this value we have the smallest aperture flux loss (ghost)
-        q = 100
-        spyd_center = fourier_flat[middle-R_1, :]
-        spyd_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_center[int(len(phis)/2)-
-                                                                         w:int(len(phis)/2)
-                                                                         +w]/fft_beamG[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w]
-
-        spyd_center[:int(len(phis)/2)-2*w] = spyd_center[:int(len(phis)/2)-2*w]/q
-        spyd_center[int(len(phis)/2)+2*w:] = spyd_center[int(len(phis)/2)+2*w:]/q
+        W = np.arange(40, 80)
         
+        apertures_cen = []
+        apertures_W = []
+        apertures_I = []
+        
+        # Create the Gaussian profile
+        w_g = 68 # Width of Gaussian profile
+        W_G = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
+        
+        for w in W:
+            gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, 10**4)
+        
+            #Subtract it
+            fft_w = fourier.copy()
+            spid_center = fft_w[middle-R_1, :].copy()
+            spid_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
+                                                                             w:int(len(phis)/2)
+                                                                             +w]/gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]
+            fft_w[middle-R_1, :] = spid_center
+            warped_back = abs(np.fft.ifft2(fft_w))
+            f_w, _, _ = aperture_flux_warped(warped_back,warped_shape, R_1,
+                                                  aspect_rad, model_planet)
+            apertures_W.append(f_w)
+        
+        aperture_ini = lambda x: f_ap_f + x*0
+        plt.figure()
+        plt.plot(W/warped_shape[0]*phi_freq[-1]*2, apertures_W, 'o', label='Aperture flux of ghost 2')
+        plt.plot(W/warped_shape[0]*phi_freq[-1]*2, aperture_ini(W), 'orange', label='Initial aperture flux of ghost 2')
+        plt.xlabel(r"Subtraction width [$\frac{1}{\mathrm{rad}}$]")
+        plt.legend()
+        plt.savefig("suppression/rad0_diffsubwidths.pdf")
+        plt.show()
+        
+        print(W[np.where(apertures_W == max(apertures_W))[0]])
+        print(W[np.where(apertures_W == max(apertures_W))[0]]/warped_shape[0]*phi_freq[-1]*2)
+        
+        w = 61 # With this value we have the smallest aperture flux loss (ghost)
+        
+        for i in W_G:
+            gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), i, 10**4)
+        
+            #Subtract it
+            fft_wg = fourier.copy()
+            spid_center = fft_wg[middle-R_1, :].copy()
+            spid_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
+                                                                             w:int(len(phis)/2)
+                                                                             +w]/gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]
+            fft_wg[middle-R_1, :] = spid_center
+            warped_back = abs(np.fft.ifft2(fft_wg))
+            f_gauss, _, _ = aperture_flux_warped(warped_back,warped_shape, R_1,
+                                                  aspect_rad, model_planet)
+            apertures_cen.append(f_gauss)
+            
+        
+        plt.figure()
+        plt.plot(W_G, apertures_cen, 'o')
+        #plt.ylim((142, 146))
+        plt.show()
+        
+        Intens = np.linspace(10**3, 10**5, 15)
+        for i in Intens:
+            gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, i)
+        
+            #Subtract it
+            fft_i = fourier.copy()
+            spid_center = fft_i[middle-R_1, :].copy()
+            spid_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
+                                                                             w:int(len(phis)/2)
+                                                                             +w]/gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]
+            fft_i[middle-R_1, :] = spid_center
+            warped_back = abs(np.fft.ifft2(fft_i))
+            f_I, _, _ = aperture_flux_warped(warped_back,warped_shape, R_1,
+                                                  aspect_rad, model_planet)
+            apertures_I.append(f_I)
+            
+        
+        plt.figure()
+        plt.plot(Intens, apertures_I, 'o')
+        #plt.ylim((142, 146))
+        plt.show()
+        
+        
+        # Now the final subtraction
+        gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, 10**4)
+        
+        #Subtract it
+        spid_center = fourier[middle-R_1, :]
+        spid_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
+                                                                         w:int(len(phis)/2)
+                                                                         +w]/gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]
      
         plt.figure(figsize=(8, 16*aspect_value))
-        plt.semilogy(phi_freq, abs(spyd_center), label="ratio")
-        #plt.xlim((-20, 20))
-        #plt.ylim((10**(-1), 10**(2)))
+        plt.semilogy(phi_freq, abs(spid_center), label="spid")
+        plt.semilogy(phi_freq, abs(gauss)+0.001, label="gauss")
+        plt.xlim((-50, 50))
+        plt.ylim((10**(-1), 10**(5)))
         plt.title("FFT ratio of beam images")
         plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.legend()
         plt.show()
     
+      
+        fourier[middle-R_1, :] = spid_center
         
-        fourier_flat[middle-R_1, :] = spyd_center
-        
-        fft_back_spyd_center = abs(np.fft.ifft2(fourier_flat))
+        warped_back = abs(np.fft.ifft2(fourier))
         
         ## Computation of the aperture flux of the model planet in the flattened 
         ## and FFT back where a gaussian is subtracted from the center
-        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back_spyd_center, 
+        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(warped_back, 
                                                                     warped_shape, R_1, 
-                                                                    aspect_value, 
+                                                                    aspect_rad, 
                                                                     model_planet)
-        print("The aperture flux of the model planet without (central frequencies only) spyders is: ", f_ap_fft)
+        print("The aperture flux of the model planet without (only at radial freq=0) spyders is: ", f_ap_fft)
+        print("This corresponds to ", round(100/f_ap_f*f_ap_fft, 3), " %")
         aper_cfreq.append(f_ap_fft)
-
         
+        plt.figure(figsize=(8, 16*aspect_value))
+
+        plt.subplot(211)
+        plt.imshow(warped_back, origin='lower', aspect=aspect_rad, vmin=Imin_small, 
+                   vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [rad]')
+        plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
+                   [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
+        plt.colorbar()
+        
+        plt.subplot(212)
+        plt.imshow(abs(fourier), origin='lower', cmap='gray', 
+                   norm=LogNorm(vmin=1), aspect=aspect_freq, 
+                   extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
+        plt.colorbar()
+        
+        plt.tight_layout()
+        plt.savefig("suppression/HDcentralfreq_R254_R454_-1to1.pdf")
+        plt.show()
+         
+
+"""        
         # Ratio in radial direction in order to make a Gaussian subtraction of all 
         # frequencies in radial direction (also the larger ones)
         ratio_gaussian = sum(abs(fourier_flat[middle-R_1, int(len(phis)/2)-

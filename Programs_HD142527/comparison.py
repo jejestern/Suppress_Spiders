@@ -135,7 +135,7 @@ for image_name in files[0:4]:
         ## Computation of the aperture flux of the model planet in the warped 
         ## image
         f_ap_w, ap_w_draw, annu_w_draw = aperture_flux_warped(warped_or, warped_shape, 
-                                                              R_1, aspect_value, 
+                                                              R_1, aspect_rad, 
                                                               model_planet)
         print("The aperture flux of the model planet in the warped image is: ", f_ap_w)
         aper_warped.append(f_ap_w)
@@ -156,7 +156,7 @@ for image_name in files[0:4]:
         ## Computation of the aperture flux of the model planet in the flattened 
         ## image
         f_ap_f, ap_f_draw, annu_f_draw = aperture_flux_warped(warped_or, warped_shape, 
-                                                              R_1, aspect_value, 
+                                                              R_1, aspect_rad, 
                                                               model_planet)
         print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
         aper_flat.append(f_ap_f)
@@ -225,7 +225,7 @@ for image_name in files[0:4]:
         ## and FFT back where a gaussian is subtracted from the center
         f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back_spyd_center, 
                                                                     warped_shape, R_1, 
-                                                                    aspect_value, 
+                                                                    aspect_rad, 
                                                                     model_planet)
         print("The aperture flux of the model planet without (central frequencies only) spyders is: ", f_ap_fft)
         aper_cfreq.append(f_ap_fft)
@@ -299,7 +299,7 @@ for image_name in files[0:4]:
         ## and FFT back image where the spyders are taken away
         f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(fft_back_spyd, 
                                                                     warped_shape, R_1, 
-                                                                    aspect_value, 
+                                                                    aspect_rad, 
                                                                     model_planet)
         print("The aperture flux of the model planet without spyders is: ", f_ap_fft)
         aper_wspyd.append(f_ap_fft)

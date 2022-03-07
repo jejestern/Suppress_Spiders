@@ -72,6 +72,7 @@ where $G(\mu)$ and $F(\mu)$ are the Fourier transforms of $g(x)$ and $f(x)$ \cit
 \end{figure}
 
 \subsection{Gaussian Beams}
+\label{sec:gaussian}
 Before we have looked at beams with a stair function shape, but the spiders in our data do not have this stair function shape. In order to have a more realistic approximation we assume the spiders in our simulation to be Gaussian along the radial direction. We calculate the Gaussian profile from 
 \begin{equation}
 	f(x) = \exp \left(-\frac{(x-\mu)^2}{2 \sigma^2} \right)
@@ -156,6 +157,7 @@ For radial frequencies other than zero the intensity decreases rapidly to a smal
 \end{figure}
 
 \subsection{Point-Like Sources}
+\label{sec:pointlike}
 In order to make sure that we are not going to suppress the signal of point-like sources as exoplanets we need to know how their signal is going to look like in the Fourier space.\\
 We investigate the signal of a Gaussian point source and of a point spread function (PSF). A PSF describes how a point source looks like after it has gone through an imaging system \cite{PSFwiki}, which is in our case the VLT telescope with its adaptive optic. In order to simulate the PSF we used the python package AOtools \cite{AOtools}.\\
 Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF profile in the image plane. We want to compare the Fourier transformation of the PSF to the one of the Gaussian profile, of which we expect the Fourier transform to be again a Gaussian profile. The image with the PSF and its Fourier transform is shown in figure \ref{fig:PSF_fourier}. Figure \ref{fig:PSF_cut_fourier} shows the Fourier transform of a Gaussian profile and the PSF at radial frequency zero. As expected the Gaussian profile stays Gaussian in the frequency space. The Fourier transform of the PSF produces the same intensity for radial and angular frequency zero, but it decreases slower and has some local maxima. The two local maxima at each side of the global maximum produce a specific pattern which is completely different to what we get from the spiders and might be helpful to extract information about point sources from the frequency plane.  

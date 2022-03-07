@@ -245,7 +245,7 @@ for image_name in files[0:3]:
         ## Computation of the aperture flux of the model planet in the warped 
         ## image
         f_ap_w, ap_w_draw, annu_w_draw = aperture_flux_warped(warped_m_or, warped_shape, 
-                                                              R_1, aspect_value, 
+                                                              R_1, aspect_rad, 
                                                               model_planet)
         print("The aperture flux of the model planet in the warped image is: ", f_ap_w)
         
@@ -325,7 +325,7 @@ for image_name in files[0:3]:
         ## Computation of the aperture flux of the model planet in the flattened 
         ## image
         f_ap_f, ap_f_draw, annu_f_draw = aperture_flux_warped(warped_m_or, warped_shape, 
-                                                              R_1, aspect_value, 
+                                                              R_1, aspect_rad, 
                                                               model_planet)
         print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
         
