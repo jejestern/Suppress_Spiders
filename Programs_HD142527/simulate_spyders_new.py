@@ -272,6 +272,15 @@ plt.show()
 
 gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), 68, 10**4)
 
+cen_r = int((R_2-R_1)/2)
+w = 61
+neg_r = 40
+ratio_gauss = np.sum(abs(fft_spydG[cen_r+1:cen_r+neg_r, int(len(phis)/2)-w:
+                                 int(len(phis)/2)-1]), axis=1)/np.sum(abs(
+                                     fft_spydG[cen_r, int(len(phis)/2)-w:
+                                               int(len(phis)/2)-1]))
+print(ratio_gauss)
+                                         
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
@@ -336,6 +345,94 @@ plt.semilogy(radi_freq[middle-R_1+1:], oneover_x(radi_freq[middle-R_1+1:], *popt
 plt.title("FFT of beam images horizontal")
 plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
 plt.legend(loc='upper right')
+plt.show()
+
+
+######################### Add noise ###########################################
+
+spydN = spydG.copy() + np.random.rand(warp_shape[1], warp_shape[0])/4*3
+
+# Fourier transform the warped image with beams
+fft_spydN = np.fft.fftshift(np.fft.fft2(spydN))
+        
+# Plotting the warped and fft of it
+plt.figure(figsize=(8, 16*aspect_value))
+        
+plt.subplot(211)
+plt.imshow(spydN, origin='lower', aspect=aspect_rad, vmin=0, vmax=Imax, 
+           extent=[0, 2*np.pi, R_1, R_2])
+plt.xlabel(r'$\varphi$ [rad]')
+plt.ylabel('Radius')
+#plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+ #                                                 r'$3\pi/2$', r'$2\pi$'])
+plt.colorbar()
+        
+plt.subplot(212)
+plt.imshow(abs(fft_spydN + 0.0001), origin='lower', cmap='gray',  norm=LogNorm(vmin=1),
+           aspect=aspect_freq, extent=[phi_freq[0], phi_freq[-1], radi_freq[0], 
+                                       radi_freq[-1]])
+plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+plt.ylim((-0.5, 0.5))
+plt.colorbar()
+
+plt.tight_layout()
+plt.savefig("fourier/simulated_spyder.pdf")
+plt.show()
+
+y = int((R_2-R_1)/2)
+plt.figure(figsize=(8, 24*aspect_value))
+while y > 0:
+    plt.semilogy(phi_freq, abs(fft_spydN[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    if y == int((R_2-R_1)/2):
+        y -= 1
+    elif abs(radi_freq[y]) < 0.04:
+        y -= 5
+    else:
+        y -= 40
+plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
+#plt.ylim((10**(-1), 10**(5)))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+#plt.savefig("fourier/simspi_angularfreq.pdf")
+plt.show()
+
+# The same as before, but with an enlarged x-range
+y = int((R_2-R_1)/2)
+plt.figure(figsize=(8, 24*aspect_value))
+while y > 0:
+    plt.semilogy(phi_freq, abs(fft_spydN[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    if y == int((R_2-R_1)/2):
+        y -= 1
+    elif abs(radi_freq[y]) < 0.04:
+        y -= 5
+    else:
+        y -= 40
+plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
+plt.xlim((-60, 60))
+plt.ylim((10**(-1), 10**(5)))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+#plt.savefig("fourier/simspi_angularfreq_enlarged.pdf")
+plt.show()
+
+
+x = int(len(phis)/2)
+plt.figure(figsize=(8, 5))
+while x > 0:
+    plt.semilogy(radi_freq, abs(fft_spydN[:, x] + 0.0001), label ="phi pos. = %.i" %(phi_freq[x]))
+    if abs(phi_freq[x]) > 50:
+        x -= 500
+    else:
+        x -= 80
+#plt.ylim((10**(-1), 10**(5)))
+plt.xlabel(r'Radial frequency [$\frac{1}{\mathrm{px}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+#plt.savefig("fourier/simspi_radialfreq.pdf")
 plt.show()
 
 

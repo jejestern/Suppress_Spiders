@@ -280,7 +280,7 @@ for image_name in files[0:3]:
         ratio_gaussian = sum(abs(fourier_flat[middle-R_1, int(len(phis)/2)-
                                               w:int(len(phis)/2)+w]))/sum(
                                                   abs(fourier_flat[20, int(len(phis)/2)-w:int(len(phis)/2)+w]))
-        print(ratio_gaussian)
+        print(ratio_gaussian) ### The ratio calculation is wrong... See spyder_suppression.py
     
     
         small_gaussian = fft_beamG[middle-R_1, :] * ratio_gaussian

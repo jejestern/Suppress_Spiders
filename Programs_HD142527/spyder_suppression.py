@@ -24,7 +24,7 @@ R_2 = 454
 # Choose the intensity
 Imax = 5
 Imax_small = 1
-Imin_small = -1
+Imin_small = 0
         
 
 
@@ -201,9 +201,9 @@ for image_name in files[0:3]:
         neg_r = 40
         neg_a = 300
         q = 10**(-3)
-        fourier[:middle-R_1-neg_r, :] = fourier[:middle-R_1-neg_r, :]*q
+        fourier[:middle-R_1-neg_r+1, :] = fourier[:middle-R_1-neg_r+1, :]*q
         fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
-        fourier[:, :int(len(phis)/2)-neg_a] = fourier[:,  :int(len(phis)/2)-neg_a]*q
+        fourier[:, :int(len(phis)/2)-neg_a+1] = fourier[:,  :int(len(phis)/2)-neg_a+1]*q
         fourier[:, int(len(phis)/2)+neg_a:] = fourier[:, int(len(phis)/2)+neg_a:]*q
         
         # Inverse FFT after setting the edges to a smaaaall value
@@ -332,8 +332,8 @@ for image_name in files[0:3]:
         gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, 10**4)
         
         #Subtract it
-        spid_center = fourier[middle-R_1, :]
-        spid_center[int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
+        spid_center = fourier[middle-R_1, :].copy()
+        fourier[middle-R_1, int(len(phis)/2)-w:int(len(phis)/2)+w] = spid_center[int(len(phis)/2)-
                                                                          w:int(len(phis)/2)
                                                                          +w]/gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]
      
@@ -347,8 +347,6 @@ for image_name in files[0:3]:
         plt.legend()
         plt.show()
     
-      
-        fourier[middle-R_1, :] = spid_center
         
         warped_back = abs(np.fft.ifft2(fourier))
         
@@ -386,30 +384,84 @@ for image_name in files[0:3]:
         plt.savefig("suppression/HDcentralfreq_R254_R454_-1to1.pdf")
         plt.show()
          
-
-"""        
+        ######################################################################
+        ######### Frequency suppression also in radial direction #############
+        ######################################################################
+        
         # Ratio in radial direction in order to make a Gaussian subtraction of all 
         # frequencies in radial direction (also the larger ones)
-        ratio_gaussian = sum(abs(fourier_flat[middle-R_1, int(len(phis)/2)-
-                                              w:int(len(phis)/2)+w]))/sum(
-                                                  abs(fourier_flat[20, int(len(phis)/2)-w:int(len(phis)/2)+w]))
-        print("Ratio for the small gaussian: ", ratio_gaussian)
-    
-    
-        small_gaussian = fft_beamG[middle-R_1, :] * ratio_gaussian
+        cen_r = int((R_2-R_1)/2)
+        ratio_gauss = np.sum(abs(fourier[cen_r+1:cen_r+neg_r, int(len(phis)/2)-w:
+                                         int(len(phis)/2)-1]), axis=1)/np.sum(abs(spid_center[
+                                             int(len(phis)/2)-w:int(len(phis)/2)-1]))        
+        #print("Ratio for the small gaussian: ", ratio_gauss)
        
-        y = 0
+        y = int((R_2-R_1)/2) + 1
+        y_g = 0
         plt.figure(figsize=(8, 16*aspect_value))
-        while y < (R_2-R_1)/2:
-            plt.semilogy(phi_freq, abs(fourier_flat[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
-            y += 20
-        plt.semilogy(phi_freq, abs(small_gaussian + 0.0001), label="Gaussian beam")
-        plt.ylim((10**(-1), 10**(4)))
-        plt.title("FFT of beam images horizontal")
+        while y > cen_r - neg_r:
+            plt.semilogy(phi_freq, abs(fourier[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
+            plt.semilogy(phi_freq, gauss*ratio_gauss[y_g], label="Gaussian")
+            if y == int((R_2-R_1)/2):
+                y -= 1
+                y_g += 1
+            elif abs(radi_freq[y]) < 0.02:
+                y -= 5
+                y_g += 5
+            else:
+                y -= 20
+                y_g += 20
+        #plt.semilogy(phi_freq, abs(spid_center), label="spid")
+        #plt.semilogy(phi_freq, abs(gauss), label="gauss")
+        plt.xlim((-30, 30))
+        plt.ylim((10**(1), 3.5*10**(4)))
         plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.legend(loc='upper right')
+        plt.tight_layout()
         plt.show()
-      
+        
+        
+        r_n = cen_r - 1
+        r_p = cen_r + 1
+        ratio_i = 0
+        while r_n > cen_r - 4:
+            fourier[r_n, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
+                r_n, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
+                    gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
+            fourier[r_p, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
+                r_p, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
+                    gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
+            r_n -= 1
+            r_p += 1
+            ratio_i += 1
+            
+        warped_back = abs(np.fft.ifft2(fourier))    
+        
+        plt.figure(figsize=(8, 16*aspect_value))
+
+        plt.subplot(211)
+        plt.imshow(warped_back, origin='lower', aspect=aspect_rad, vmin=Imin_small, 
+                   vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
+        plt.xlabel(r'$\varphi$ [rad]')
+        plt.ylabel('Radius')
+        plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
+                   [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
+        plt.colorbar()
+        
+        plt.subplot(212)
+        plt.imshow(abs(fourier), origin='lower', cmap='gray', 
+                   norm=LogNorm(vmin=1), aspect=aspect_freq, 
+                   extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
+        plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
+        plt.ylim((-0.5, 0.5))
+        plt.colorbar()
+        
+        plt.tight_layout()
+        plt.savefig("suppression/HDcentralfreq_R254_R454_-1to1.pdf")
+        plt.show()
+               
+"""        
         w = 10
         h = 5
         spyd_low = fourier_flat[middle-R_1-h:middle-R_1, :] 
@@ -420,7 +472,7 @@ for image_name in files[0:3]:
         spyd_high[:, int(len(phis)/2)-w:int(len(phis)/2)+w] = spyd_high[:, int(len(phis)/2)
                                                                         -w:int(len(phis)/2)
                                                                         +w]/small_gaussian[int(len(phis)/2)-w:int(len(phis)/2)+w]
-
+  
         
         plt.figure(figsize=(8, 16*aspect_value))
         plt.semilogy(phi_freq, abs(spyd_low[h-1]), label="ratio")
