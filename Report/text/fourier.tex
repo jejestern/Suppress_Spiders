@@ -140,7 +140,7 @@ For the simulation of the spiders we use the knowledge which we have gained befo
 \end{figure}
 For a better understanding of the Fourier transformation, we plot the Fourier transform at different radial and angular frequencies, see figure \ref{fig:simspi_angularfreq} and \ref{fig:simspi_radialfreq}.\\
 We find that the intensities at radial frequency zero are the same as if the spiders would be Gaussian beams, with the intensity and widths being constant in radial direction. This means the width is defined by the inverse of the width of the smallest spider and the shape around the peak is dominated by the Fourier transform of the thickest spider. The maximal intensity is a sum of all Fourier transformed Gaussian profiles and the oscillations are due to the distances between the spiders. \\
-For radial frequencies other than zero the intensity decreases rapidly to a small value and then stays constant, see figure \ref{fig:simspi_radialfreq}. This can also be seen in figure \ref{fig:simspi_angularfreq}, and therefore the important frequencies are for radial frequencies larger/smaller than approximately -0.6/0.6 $\frac{1}{\mathrm{px}}$ and for angular frequencies larger/smaller than approximately -30/30 $\frac{1}{\mathrm{rad}}$.
+For radial frequencies other than zero the intensity decreases rapidly to a small value and then stays constant, see figure \ref{fig:simspi_radialfreq}. This can also be seen in figure \ref{fig:simspi_angularfreq}, and therefore the important frequencies are for radial frequencies larger/smaller than approximately $-0.06$/$0.06$ $\frac{1}{\mathrm{px}}$ and for angular frequencies larger/smaller than approximately $-30$/$30$ $\frac{1}{\mathrm{rad}}$.
 \begin{figure}[H]
 	\centering
 		\subfigure[]{\includegraphics[width=1.0\textwidth]{pics/simspi_angularfreq.pdf}}
@@ -155,6 +155,25 @@ For radial frequencies other than zero the intensity decreases rapidly to a smal
 		\caption{The Fourier transform from figure \ref{fig:simspi_radialfreq} at different radial frequencies.}
 		\label{fig:simspi_radialfreq}
 \end{figure}
+
+\subsection{Noise}
+The data will also include noise, therefore it is also important to know which effect the noise has on the Fourier transformed image. We simulate the noise by adding a random field to the simulated spider image with values between $0$ and $0.75$, since this is also about the range of the noise in our data. Figure \ref{fig:simulated_spider_noise} shows the simulated image and its frequency plane. On the first sight we see that the frequency background increased due to the noise. If we take a closer look at the intensities of the frequencies, see figure \ref{fig:simulated_spider_noise}, we find that the noisy background of the image plane produces a noisy background in the frequency plane which swallows every signal which is smaller than the noise. This means we loose a lot of information due to the noise, but this was to be expected, since this is also the effect the noise has in the image plane. Additionally the noise leads to a large increase of the intensity of the central frequency.\\
+This means that due to the noise the Gaussian profile which best fits the Fourier transformation of the simulated spider at radial frequency zero is now not anymore the one with width $68 \frac{1}{\mathrm{rad}}$. The fit before was a good description for the bottom part of the Fourier transformation, but now this part is cut of, and the only part of the signal which is left, is the one which is mainly dominated by the widest spider. We choose a Gaussian profile of width $68 \frac{1}{\mathrm{rad}}$ as it is shown in figure \ref{fig:simspi_noise_angularfreq}.\\
+In general we see that only the frequency close to the center are larger than the noise, such that the only radial frequencies which still can play a role are between $(-0.06, 0.06)$ $\frac{1}{\mathrm{px}}$ and the only angular frequencies are between $[-23, 23]$ $\frac{1}{\mathrm{rad}}$. This is luckily almost the same area which we before defined the be the most important. \\
+We only looked at the effect randomly distributed noise has on the frequency plane, but there are also other types of noise distribution which might have a different effect. Especially the high increase of the central frequency might be different. The noisy background in the frequency plane will most probably be there also for other types of noise distributions, but the level of the background might be not distributed around a constant line, like like this is the case here or the distribution around the line is different. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/simulated_spider_noise.pdf}
+		\caption{The image on top shows a simulation of the spiders in radius range $[254, 545]$ with a noisy background and on the bottom is the respective frequency plane.}
+		\label{fig:simulated_spider_noise}
+\end{figure}
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/simspi_noise_angularfreq.pdf}
+	\caption{The Fourier transform from figure \ref{fig:simulated_spider_noise} at different radial frequencies and a Gaussian profile as reference. }
+\label{fig:simspi_noise_angularfreq}
+\end{figure}
+
 
 \subsection{Point-Like Sources}
 \label{sec:pointlike}
@@ -179,3 +198,18 @@ Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF prof
 		\caption{The Fourier transform of a Gaussian profile and a PSF at radial frequency zero. }
 		\label{fig:PSF_cut_fourier}
 \end{figure}
+
+We want to combine the knowledge about the frequency plane about the spiders with the one from the PSF. Figure \ref{fig:simulated_spyder_PSF} shows the simulated image which contains the spiders and a PSF and its Fourier transform. Figure \ref{fig:simspi_PSF_angularfreq} shows a horizontal cut through the frequency space. Since the image is an addition of the spider image and the PSF image and the Fourier transform is linear, the frequency plane should also be an addition. This is also what we see from our images. However this addition is hard to see in the logarithmic plot especially around the center frequencies. We need to keep this in mind for later, so that when we want to suppress the frequency signal from the spider, we do not accidentally subtract also signal form potential point-sources. Especially when the point-sources are really week then there frequency signals will be even weaker. 
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/simulated_spyder_PSF.pdf}
+		\caption{A simulation of the spiders including a PSF to simulate a point-source, like an exoplanet and the respective frequency plane.}
+		\label{fig:simulated_spyder_PSF}
+\end{figure}
+\begin{figure}[H]
+	\centering
+		\includegraphics[width=1.0\textwidth]{pics/simspi_PSF_angularfreq.pdf}
+		\caption{The Fourier transform shown in figure \ref{fig:simulated_spyder_PSF} at different radial frequencies and a Gaussian profile as reference.}
+		\label{fig:simspi_PSF_angularfreq}
+\end{figure}
+In order to get a complete simulation from our data, we would also need to add noise to our simulation from the PSF together with the spiders. As we learned before the noise will lead to a noisy frequency background which swallows all information with a smaller intensity than the background. Therefore we need to focus on the central frequencies, which are the only ones, which are intense enough. 

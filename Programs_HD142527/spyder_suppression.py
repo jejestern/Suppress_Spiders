@@ -252,7 +252,7 @@ for image_name in files[0:3]:
         apertures_I = []
         
         # Create the Gaussian profile
-        w_g = 68 # Width of Gaussian profile
+        w_g = 55 #68 # Width of Gaussian profile
         W_G = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
         
         for w in W:
