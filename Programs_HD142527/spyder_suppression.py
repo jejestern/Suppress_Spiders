@@ -23,8 +23,8 @@ R_2 = 454
 
 # Choose the intensity
 Imax = 5
-Imax_small = 1
-Imin_small = 0
+Imax_small = 0.5
+Imin_small = -0.1
         
 
 
@@ -283,7 +283,7 @@ for image_name in files[0:3]:
         print(W[np.where(apertures_W == max(apertures_W))[0]]/warped_shape[0]*phi_freq[-1]*2)
         
         w = 61 # With this value we have the smallest aperture flux loss (ghost)
-        
+        """
         for i in W_G:
             gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), i, 10**4)
         
@@ -326,10 +326,11 @@ for image_name in files[0:3]:
         plt.plot(Intens, apertures_I, 'o')
         #plt.ylim((142, 146))
         plt.show()
-        
+        """
         
         # Now the final subtraction
-        gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, 10**4)
+        I_g = 9.918*10**3
+        gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, I_g)
         
         #Subtract it
         spid_center = fourier[middle-R_1, :].copy()
@@ -339,7 +340,7 @@ for image_name in files[0:3]:
      
         plt.figure(figsize=(8, 16*aspect_value))
         plt.semilogy(phi_freq, abs(spid_center), label="spid")
-        plt.semilogy(phi_freq, abs(gauss)+0.001, label="gauss")
+        plt.semilogy(phi_freq, abs(gauss)+0.001, label="gauss $\sigma$ = %.i" %(w_g))
         plt.xlim((-50, 50))
         plt.ylim((10**(-1), 10**(5)))
         plt.title("FFT ratio of beam images")
@@ -395,13 +396,18 @@ for image_name in files[0:3]:
                                          int(len(phis)/2)-1]), axis=1)/np.sum(abs(spid_center[
                                              int(len(phis)/2)-w:int(len(phis)/2)-1]))        
         #print("Ratio for the small gaussian: ", ratio_gauss)
+        
+        # We define the Gauss for the non-zero radial frequency, which has a 
+        # smaller width 
+        w_s = 40
+        gauss_s = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_s, 0.84*I_g)
        
         y = int((R_2-R_1)/2) + 1
         y_g = 0
         plt.figure(figsize=(8, 16*aspect_value))
         while y > cen_r - neg_r:
             plt.semilogy(phi_freq, abs(fourier[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
-            plt.semilogy(phi_freq, gauss*ratio_gauss[y_g], label="Gaussian")
+            plt.semilogy(phi_freq, gauss_s*ratio_gauss[y_g], label="Gaussian $\sigma$ = %.i" %(w_g))
             if y == int((R_2-R_1)/2):
                 y -= 1
                 y_g += 1
@@ -424,10 +430,11 @@ for image_name in files[0:3]:
         r_n = cen_r - 1
         r_p = cen_r + 1
         ratio_i = 0
-        while r_n > cen_r - 4:
+        while r_n > cen_r - neg_r:
+            w = int(w * ratio_gauss[ratio_i])
             fourier[r_n, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
                 r_n, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
-                    gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
+                    gauss_s[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
             fourier[r_p, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
                 r_p, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
                     gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
@@ -435,7 +442,17 @@ for image_name in files[0:3]:
             r_p += 1
             ratio_i += 1
             
-        warped_back = abs(np.fft.ifft2(fourier))    
+        warped_back = abs(np.fft.ifft2(fourier))  
+        
+        ## Computation of the aperture flux of the model planet in the flattened 
+        ## and FFT back image where the spyders are taken away
+        f_ap_fft, ap_fft_draw, annu_fft_draw = aperture_flux_warped(warped_back, 
+                                                                    warped_shape, R_1, 
+                                                                    aspect_value, 
+                                                                    model_planet)
+        print("The aperture flux of the model planet without spyders is: ", f_ap_fft)
+        print("This corresponds to ", round(100/f_ap_f*f_ap_fft, 3), " %")
+        aper_wspyd.append(f_ap_fft)
         
         plt.figure(figsize=(8, 16*aspect_value))
 

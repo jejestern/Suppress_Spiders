@@ -273,19 +273,21 @@ plt.show()
 
 w_g = 68
 w_gi = 55
-gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, 10**4)
-gauss_inner = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_gi, 10**4)
+I_g = 9.918*10**3
+I_gm = 9.9*10**3
+gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, I_g)
+gauss_inner = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_gi, I_g)
 
 cen_r = int((R_2-R_1)/2)
 w = 61
-neg_r = 40
+neg_r = 40 
 ratio_gauss = np.sum(abs(fft_spydG[cen_r+1:cen_r+neg_r, int(len(phis)/2)-w:
                                  int(len(phis)/2)-1]), axis=1)/np.sum(abs(
                                      fft_spydG[cen_r, int(len(phis)/2)-w:
                                                int(len(phis)/2)-1]))
 print(ratio_gauss)
 w_s = 40
-gauss_s = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_s, 10**4)*ratio_gauss[0]
+gauss_s = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_s, 0.84*10**4)*ratio_gauss[0]   #Neg_r verändern evtl dann besser
                                          
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
@@ -298,8 +300,8 @@ while y > 0:
     else:
         y -= 40
 plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
-#plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian profile")
-#plt.semilogy(phi_freq, abs(gauss_s + 0.0001), label="Gaussian profile")
+plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian profile")
+plt.semilogy(phi_freq, abs(gauss_s + 0.0001), label="Gaussian profile")
 #plt.ylim((10**(-1), 10**(5)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
@@ -320,6 +322,7 @@ while y > 0:
         y -= 40
 plt.plot(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
 plt.plot(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_gi))
+plt.plot(phi_freq, abs(gauss_s + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_s))
 plt.xlim((-60, 60))
 #plt.ylim((10**(-4), 2*10**(4)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
