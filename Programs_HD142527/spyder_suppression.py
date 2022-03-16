@@ -174,7 +174,7 @@ for image_name in files[0:3]:
                 y -= 5
             else:
                 y -= 40
-        plt.xlim((-30, 30))
+        #plt.xlim((-30, 30))
         plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.legend(loc='upper right')
         plt.tight_layout()
@@ -195,12 +195,23 @@ for image_name in files[0:3]:
         plt.tight_layout()
         plt.savefig("suppression/ang0.pdf")
         plt.show()
-        
+        """
+        ##Subtract the background from everything
+        b = int((R_2-R_1)/2)
+        while b > 0:
+            background = np.mean(abs(fourier[b, :int(len(phis)/8)]))
+            print(background)
+            fourier[b, :] = fourier[b, :] / background
+            if b != int((R_2-R_1)/2):
+                fourier[-b, :] = fourier[-b, :] / background
+            b -= 1
+        """
         
         ## Set everything outside a specific area to zero
         neg_r = 40
         neg_a = 300
         q = 10**(-3)
+        
         fourier[:middle-R_1-neg_r+1, :] = fourier[:middle-R_1-neg_r+1, :]*q
         fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
         fourier[:, :int(len(phis)/2)-neg_a+1] = fourier[:,  :int(len(phis)/2)-neg_a+1]*q
