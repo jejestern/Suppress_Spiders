@@ -24,7 +24,7 @@ R_2 = 454
 # Choose the intensity
 Imax = 5
 Imax_small = 0.5
-Imin_small = -0.1
+Imin_small = -0.5
         
 
 
@@ -136,6 +136,7 @@ for image_name in files[0:3]:
 
         ## Plot the output and its fft
         fourier = np.fft.fftshift(np.fft.fft2(warped))
+        fourier_real = fourier.real
       
         plt.figure(figsize=(8, 16*aspect_value))
 
@@ -151,8 +152,8 @@ for image_name in files[0:3]:
         plt.colorbar()
 
         plt.subplot(212)
-        plt.imshow(abs(fourier), origin='lower', cmap='gray', 
-                   norm=LogNorm(vmin=1), aspect=aspect_freq, 
+        plt.imshow(abs(fourier), origin='lower', cmap='gray', norm=LogNorm(vmin=1),
+                   aspect=aspect_freq, 
                    extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
         plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
@@ -211,14 +212,16 @@ for image_name in files[0:3]:
         neg_r = 40
         neg_a = 300
         q = 10**(-3)
-        
+     
         fourier[:middle-R_1-neg_r+1, :] = fourier[:middle-R_1-neg_r+1, :]*q
         fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
         fourier[:, :int(len(phis)/2)-neg_a+1] = fourier[:,  :int(len(phis)/2)-neg_a+1]*q
         fourier[:, int(len(phis)/2)+neg_a:] = fourier[:, int(len(phis)/2)+neg_a:]*q
         
+        fourier_real = fourier.real
+      
         # Inverse FFT after setting the edges to a smaaaall value
-        warped_back = abs(np.fft.ifft2(fourier))
+        warped_back = np.fft.ifft2(np.fft.ifftshift(fourier)).real
 
         ## Computation of the aperture flux of the model planet after background=0
         f_ap_b, _, _ = aperture_flux_warped(warped_back, warped_shape, 
@@ -339,7 +342,7 @@ for image_name in files[0:3]:
         plt.show()
         """
         
-        # Now the final subtraction
+        # Now the final subtraction = division by the gaussian
         I_g = 9.918*10**3
         gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, I_g)
         
@@ -359,8 +362,8 @@ for image_name in files[0:3]:
         plt.legend()
         plt.show()
     
-        
-        warped_back = abs(np.fft.ifft2(fourier))
+        fourier_real = fourier.real
+        warped_back = np.fft.ifft2(np.fft.ifftshift(fourier)).real
         
         ## Computation of the aperture flux of the model planet in the flattened 
         ## and FFT back where a gaussian is subtracted from the center
@@ -441,19 +444,19 @@ for image_name in files[0:3]:
         r_n = cen_r - 1
         r_p = cen_r + 1
         ratio_i = 0
-        while r_n > cen_r - neg_r:
-            w = int(w * ratio_gauss[ratio_i])
-            fourier[r_n, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
-                r_n, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
-                    gauss_s[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
-            fourier[r_p, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
-                r_p, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
-                    gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
+        while r_n > cen_r - 3:
+            w_s = int(0.84*w * ratio_gauss[ratio_i])
+            fourier[r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
+                r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
+                    gauss_s[int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]*ratio_gauss[ratio_i])
+            fourier[r_p, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
+                r_p, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
+                    gauss[int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]*ratio_gauss[ratio_i])
             r_n -= 1
             r_p += 1
             ratio_i += 1
             
-        warped_back = abs(np.fft.ifft2(fourier))  
+        warped_back = np.fft.ifft2(np.fft.ifftshift(fourier)).real 
         
         ## Computation of the aperture flux of the model planet in the flattened 
         ## and FFT back image where the spyders are taken away
