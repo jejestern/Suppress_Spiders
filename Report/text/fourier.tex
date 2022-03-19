@@ -1,5 +1,14 @@
 \section{Fourier Transformation}
 Our goal is to decrease the intensity of the spiders and speckles in the data. In our data from HD142527 the main disturbing effects are the spiders. With the transformation to the $r$-$\varphi$ plane the spiders now are parallel to the $r$-axis. When comparing different data sets from the same observation we find that the spiders change their position, but the distance between them stays the same. It is a periodic pattern. This brings up the question, if the spiders are represented by a set of frequencies in the frequency plane. If this is the case, the suppression of some of the frequencies in the frequency plane would result in a suppression of the spiders in the image plane. The advantage of this method would be that it could be applied to the complete data set and one can ignore the fact that the spiders wander along the $\varphi$-axis. Also we should be able to suppress the spiders without destroying the information below them.\\
+For the calculation of the Fast Fourier transform and the inverse Fourier transform we use the numpy package from python as shown in the code fragment below. Since the central frequencies are the most important once, we shift them such that they are in the center of the frequency plane. We also will always plot only the absolute value of the Fourier transforms, unless it is stated differently. 
+\lstset{language=Python, numbers = none}
+\begin{lstlisting}[frame=lines]
+# Calculate the Fast Fourier transform
+fourier = np.fft.fftshift(np.fft.fft2(image))
+
+# Transform the Fourier transformed image back to the image plane
+image_back = np.fft.ifft2(np.fft.ifftshift(fourier)).real
+\end{lstlisting}
 In the following we are going to investigate the properties of a Fourier transformation on some specific image structure as lines, beams and point-like sources.\\
 
 \subsection{Lines and Beams}
@@ -157,6 +166,7 @@ For radial frequencies other than zero the intensity decreases rapidly to a smal
 \end{figure}
 
 \subsection{Noise}
+\label{sec:noise}
 The data will also include noise, therefore it is also important to know which effect the noise has on the Fourier transformed image. We simulate the noise by adding a random field to the simulated spider image with values between $0$ and $0.75$, since this is also about the range of the noise in our data. Figure \ref{fig:simulated_spider_noise} shows the simulated image and its frequency plane. On the first sight we see that the frequency background increased due to the noise. If we take a closer look at the intensities of the frequencies, see figure \ref{fig:simulated_spider_noise}, we find that the noisy background of the image plane produces a noisy background in the frequency plane which swallows every signal which is smaller than the noise. This means we loose a lot of information due to the noise, but this was to be expected, since this is also the effect the noise has in the image plane. Additionally the noise leads to a large increase of the intensity of the central frequency.\\
 This means that due to the noise the Gaussian profile which best fits the Fourier transformation of the simulated spider at radial frequency zero is now not anymore the one with width $68 \frac{1}{\mathrm{rad}}$. The fit before was a good description for the bottom part of the Fourier transformation, but now this part is cut of, and the only part of the signal which is left, is the one which is mainly dominated by the widest spider. We choose a Gaussian profile of width $68 \frac{1}{\mathrm{rad}}$ as it is shown in figure \ref{fig:simspi_noise_angularfreq}.\\
 In general we see that only the frequency close to the center are larger than the noise, such that the only radial frequencies which still can play a role are between $(-0.06, 0.06)$ $\frac{1}{\mathrm{px}}$ and the only angular frequencies are between $[-23, 23]$ $\frac{1}{\mathrm{rad}}$. This is luckily almost the same area which we before defined the be the most important. \\

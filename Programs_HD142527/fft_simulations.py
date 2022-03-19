@@ -9,6 +9,7 @@ Created on Tue Nov 23 12:21:19 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from scipy.signal import convolve
 
 
 def fourier(image, title):
@@ -68,9 +69,12 @@ while i < 100:
     i += 20
 fourier(sim_2, "morelines")
 
+s2 = sim_2[2,:]
+
 sim_1 = np.zeros((100, 100))
 sim_1[:, 5:15] = 1
 fourier(sim_1, "onebeam")
+s3 = sim_1[2,:]
 
 sim_2 = np.zeros((100, 100))
 i = 10
@@ -78,3 +82,11 @@ while i < 100:
     sim_2[:, i-5:i+5] = 1
     i += 20
 fourier(sim_2, "morebeams")
+
+x_len = np.arange(sim_1.shape[0])
+conv = convolve(s2, s3, method='fft')
+plt.figure
+plt.plot(x_len, s2)
+plt.plot(x_len, s3)
+plt.plot(x_len, conv[:100])
+plt.show()
