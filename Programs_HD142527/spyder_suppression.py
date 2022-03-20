@@ -73,7 +73,7 @@ for image_name in files[0:3]:
         mask_psf = aotools.circle(64,128)-aotools.circle(16, 128)
         zeros[:128,:128] = mask_psf 
         psf = aotools.ft2(zeros, delta=1./128.,)
-        psf = abs(psf)
+        psf = abs(psf)/1000
         
         psf_pos = (300, 800)
         psf[700:900, 200:400] = psf[512-100:512+100, 512-100:512+100]
@@ -82,7 +82,7 @@ for image_name in files[0:3]:
         #int1 = int1 + psf
         
         ## Computation of the aperture flux of the ghost
-        model_planet = gh_pos[1] #psf_pos  
+        model_planet =  gh_pos[1] #  psf_pos
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
         aper_origin.append(f_ap_im)
@@ -158,8 +158,8 @@ for image_name in files[0:3]:
         plt.subplot(211)
         plt.imshow(warped, origin='lower', aspect=aspect_rad, vmin=Imin_small, 
                    vmax= Imax_small, extent=[0, 2*np.pi, R_1, R_2])
-        ap_f_draw.plot(color ='r', lw=1.0)
-        annu_f_draw.plot(color ='#0547f9', lw=1.0)
+        #ap_f_draw.plot(color ='r', lw=1.0)
+        #annu_f_draw.plot(color ='#0547f9', lw=1.0)
         plt.xlabel(r'$\varphi$ [rad]')
         plt.ylabel('Radius')
         plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
@@ -176,7 +176,7 @@ for image_name in files[0:3]:
         plt.colorbar()
  
         plt.tight_layout()
-        plt.savefig("suppression/HDflatten_R254_R454_-1to1.pdf")
+        plt.savefig("suppression/HDflatten_R254_R454_-0.5to0.5.pdf")
         plt.show()
         
         ## Plot the frequency ranges
@@ -232,7 +232,7 @@ for image_name in files[0:3]:
         fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
         fourier[:, :int(len(phis)/2)-neg_a+1] = fourier[:,  :int(len(phis)/2)-neg_a+1]*q
         fourier[:, int(len(phis)/2)+neg_a:] = fourier[:, int(len(phis)/2)+neg_a:]*q
-        """
+        
         # Inverse FFT after setting the edges to a smaaaall value
         warped_back = np.fft.ifft2(np.fft.ifftshift(fourier)).real
 
@@ -269,7 +269,7 @@ for image_name in files[0:3]:
         plt.tight_layout()
         #plt.savefig("interpolation/HDflatten_R150_R300_4.pdf")
         plt.show()
-      
+        """
         
         # Subtract Gaussian 
         ### Take out some structure via fft: SUBTRACTION of gaussian of the 
@@ -303,7 +303,7 @@ for image_name in files[0:3]:
         plt.figure()
         plt.plot(W/warped_shape[0]*phi_freq[-1]*2, apertures_W, 'o', label='Aperture flux of ghost 2')
         plt.plot(W/warped_shape[0]*phi_freq[-1]*2, aperture_ini(W), 'orange', label='Initial aperture flux of ghost 2')
-        plt.xlabel(r"Subtraction width [$\frac{1}{\mathrm{rad}}$]")
+        plt.xlabel(r"Angular division width [$\frac{1}{\mathrm{rad}}$]")
         plt.legend()
         plt.savefig("suppression/rad0_diffsubwidths.pdf")
         plt.show()
@@ -311,7 +311,7 @@ for image_name in files[0:3]:
         print(W[np.where(apertures_W == max(apertures_W))[0]])
         print(W[np.where(apertures_W == max(apertures_W))[0]]/warped_shape[0]*phi_freq[-1]*2)
         
-        w = 61 # With this value we have the smallest aperture flux loss (ghost)
+        w = 57 # With this value we have the smallest aperture flux loss (ghost)
         """
         for i in W_G:
             gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), i, 10**4)
@@ -410,11 +410,12 @@ for image_name in files[0:3]:
                    extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
         plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
-        plt.ylim((-0.5, 0.5))
+        plt.xlim((-20, 20))
+        plt.ylim((-0.06, 0.06))
         plt.colorbar()
         
         plt.tight_layout()
-        plt.savefig("suppression/HDcentralfreq_R254_R454_-1to1.pdf")
+        plt.savefig("suppression/HDsupprcentralfreq_R254_R454_-0.5to0.5.pdf")
         plt.show()
          
         ######################################################################

@@ -646,8 +646,21 @@ for image_name in files[0:3]:
         Imax_small = 0.5
         Imin_small = -0.5
         
+        # PSF
+        zeros = np.zeros((x_len, y_len))
+        mask_psf = aotools.circle(64,128)-aotools.circle(16, 128)
+        zeros[:128,:128] = mask_psf 
+        psf = aotools.ft2(zeros, delta=1./128.,)
+        psf = abs(psf)/1000
+        
+        psf_pos = (300, 800)
+        psf[700:900, 200:400] = psf[512-100:512+100, 512-100:512+100]
+        psf[512-100:512+100, 512-100:512+100] = psf[0:200, 0:200]
+        
+        int1 = int1 + psf
+        
         ## Computation of the aperture flux of the ghost
-        model_planet = gh_pos[1] #psf_pos  
+        model_planet = psf_pos  #gh_pos[1]
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
         
