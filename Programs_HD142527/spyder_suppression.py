@@ -463,7 +463,8 @@ for image_name in files[0:3]:
         r_n = cen_r - 1
         r_p = cen_r + 1
         ratio_i = 0
-        while r_n > cen_r - 3:
+        h = 3
+        while r_n > cen_r - h:
             w_s = int(0.84*w * ratio_gauss[ratio_i])
             fourier[r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
                 r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
