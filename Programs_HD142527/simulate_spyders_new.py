@@ -295,17 +295,17 @@ gauss_s = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_s, 0.84*10**4)*ratio_g
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
     elif abs(radi_freq[y]) < 0.04:
         y -= 5
     else:
         y -= 40
-plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
-plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian profile")
-plt.semilogy(phi_freq, abs(gauss_s + 0.0001), label="Gaussian profile")
-#plt.ylim((10**(-1), 10**(5)))
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
+#plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian profile")
+#plt.semilogy(phi_freq, abs(gauss_s + 0.0001), label="Gaussian profile")
+plt.ylim((10**(-3), 2*10**(4)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -316,18 +316,18 @@ plt.show()
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.plot(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydG[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
     elif abs(radi_freq[y]) < 0.04:
         y -= 5
     else:
         y -= 40
-plt.plot(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
-plt.plot(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_gi))
-plt.plot(phi_freq, abs(gauss_s + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_s))
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
+#plt.plot(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_gi))
+#plt.plot(phi_freq, abs(gauss_s + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_s))
 plt.xlim((-60, 60))
-#plt.ylim((10**(-4), 2*10**(4)))
+plt.ylim((10**(-3), 2*10**(4)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -413,7 +413,7 @@ plt.show()
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.semilogy(phi_freq, abs(fft_spydPSF[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydPSF[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     #plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
@@ -421,8 +421,8 @@ while y > 0:
         y -= 5
     else:
         y -= 40
-plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
-#plt.ylim((10**(-1), 10**(5)))
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
+plt.ylim((10**(-3), 2*10**(4)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -433,16 +433,16 @@ plt.show()
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.plot(phi_freq, abs(fft_spydPSF[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydPSF[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
     elif abs(radi_freq[y]) < 0.04:
         y -= 5
     else:
         y -= 40
-plt.plot(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
 plt.xlim((-60, 60))
-#plt.ylim((10**(-1), 10**(5)))
+plt.ylim((10**(-3), 2*10**(4)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -539,7 +539,7 @@ plt.show()
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.semilogy(phi_freq, abs(fft_spydN[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydN[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     #plt.semilogy(phi_freq, abs(fft_spydG[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
@@ -547,9 +547,9 @@ while y > 0:
         y -= 5
     else:
         y -= 40
-plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_g))
-plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian $\sigma$ = %.i" %(w_gi))
-#plt.ylim((10**(-1), 10**(5)))
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
+plt.semilogy(phi_freq, abs(gauss_inner), label="Gaussian $\sigma$ = %.1f" %(w_gi/warp_shape[0]*phi_freq[-1]*2))
+plt.ylim((10**(-2), 4*10**(5)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -560,18 +560,18 @@ plt.show()
 y = int((R_2-R_1)/2)
 plt.figure(figsize=(8, 24*aspect_value))
 while y > 0:
-    plt.semilogy(phi_freq, abs(fft_spydN[y, :] + 0.0001), label ="radial freq. = %.2f" %(radi_freq[y]))
+    plt.semilogy(phi_freq, abs(fft_spydN[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
     if y == int((R_2-R_1)/2):
         y -= 1
     elif abs(radi_freq[y]) < 0.04:
         y -= 5
     else:
         y -= 40
-plt.semilogy(phi_freq, abs(gauss + 0.0001), label="Gaussian profile")
-plt.semilogy(phi_freq, abs(gauss_inner + 0.0001), label="Gaussian profile")
-plt.semilogy(phi_freq, abs(gauss_s + 0.0001), label="Gaussian profile")
+plt.semilogy(phi_freq, abs(gauss), label="Gaussian $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
+plt.semilogy(phi_freq, abs(gauss_inner), label="Gaussian $\sigma$ = %.1f" %(w_gi/warp_shape[0]*phi_freq[-1]*2))
+plt.semilogy(phi_freq, abs(gauss_s), label="Gaussian $\sigma$ = %.1f" %(w_s/warp_shape[0]*phi_freq[-1]*2))
 plt.xlim((-60, 60))
-plt.ylim((10**(-1), 10**(5)))
+plt.ylim((10**(-2), 4*10**(5)))
 plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
@@ -760,7 +760,7 @@ for image_name in files[0:3]:
      
         plt.figure(figsize=(8, 16*aspect_value))
         plt.semilogy(phi_freq, abs(spid_center), label="spid")
-        plt.semilogy(phi_freq, abs(suppr)+0.001, label="gauss $\sigma$ = %.i" %(w_g))
+        plt.semilogy(phi_freq, abs(suppr)+0.001, label="gauss $\sigma$ = %.1f" %(w_g/warp_shape[0]*phi_freq[-1]*2))
         plt.xlim((-50, 50))
         plt.ylim((10**(-1), 10**(5)))
         plt.title("FFT ratio of beam images")

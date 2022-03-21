@@ -372,7 +372,7 @@ for image_name in files[0:3]:
      
         plt.figure(figsize=(8, 16*aspect_value))
         plt.semilogy(phi_freq, abs(spid_center), label="spid")
-        plt.semilogy(phi_freq, abs(gauss)+0.001, label="gauss $\sigma$ = %.i" %(w_g))
+        plt.semilogy(phi_freq, abs(gauss)+0.001, label="gauss $\sigma$ = %.1f" %(w_g/warped_shape[0]*phi_freq[-1]*2))
         plt.xlim((-50, 50))
         plt.ylim((10**(-1), 10**(5)))
         plt.title("FFT ratio of beam images")
@@ -433,18 +433,17 @@ for image_name in files[0:3]:
         # We define the Gauss for the non-zero radial frequency, which has a 
         # smaller width 
         w_s = 40
+        print("w_s = ", w_s)
+        print("bzw w_s = ", w_s/warped_shape[0]*phi_freq[-1]*2)
         gauss_s = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_s, 0.84*I_g)
        
-        y = int((R_2-R_1)/2) + 1
+        y = int((R_2-R_1)/2) - 1
         y_g = 0
         plt.figure(figsize=(8, 16*aspect_value))
         while y > cen_r - neg_r:
             plt.semilogy(phi_freq, abs(fourier[y, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
-            plt.semilogy(phi_freq, gauss_s*ratio_gauss[y_g], label="Gaussian $\sigma$ = %.i" %(w_g))
-            if y == int((R_2-R_1)/2):
-                y -= 1
-                y_g += 1
-            elif abs(radi_freq[y]) < 0.02:
+            plt.semilogy(phi_freq, gauss_s*ratio_gauss[y_g], label="Gaussian $\sigma$ = %.1f" %(w_s/warped_shape[0]*phi_freq[-1]*2))
+            if abs(radi_freq[y]) < 0.02:
                 y -= 5
                 y_g += 5
             else:
@@ -464,8 +463,9 @@ for image_name in files[0:3]:
         r_p = cen_r + 1
         ratio_i = 0
         h = 3
+        print(ratio_gauss)
         while r_n > cen_r - h:
-            w_s = int(0.84*w * ratio_gauss[ratio_i])
+            w_s = int(0.75*w * ratio_gauss[ratio_i])
             fourier[r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
                 r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
                     gauss_s[int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]*ratio_gauss[ratio_i])
@@ -505,11 +505,12 @@ for image_name in files[0:3]:
                    extent=[phi_freq[0], phi_freq[-1], radi_freq[0], radi_freq[-1]])
         plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
-        plt.ylim((-0.5, 0.5))
+        plt.xlim((-20, 20))
+        plt.ylim((-0.06, 0.06))
         plt.colorbar()
         
         plt.tight_layout()
-        plt.savefig("suppression/HDcentralfreq_R254_R454_-1to1.pdf")
+        plt.savefig("suppression/HDsupplowfreq_R254_R454_-0.5to0.5.pdf")
         plt.show()
 
         
