@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+The program uses Fourier transformation to suppress the spiders in astronomical data.
+Here we use data from HD142527 and used the aperture fluxes of the ghosts and 
+a simulated PSF to adjust the parameters for the suppression until they fit our
+expectations. 
+We use a Gaussian profile for the suppression, but instead of subtracting (how
+it should be) we divide by the profile. This is a really stable action, but it 
+is not correct, since dividing is like treating the spiders as if they are 
+convolutions in the image plane, which they aren't. Still we receive some kind 
+of a good result where the spiders are suppressed. The cool thing about the 
+result however is, that the image gets a smooth background.
+
 Created on 2022-03-03
 Jennifer Studer <studerje@student.ethz.ch>
 """
@@ -36,12 +47,6 @@ files = os.listdir(path)
 # We define the positions of the ghosts
 gh_pos = [(891.0, 599.0), (213.0, 387.0)]
 
-# Create a list in which we can save the information of the fft of the warped image
-aper_origin = []
-aper_warped = []
-aper_flat = []
-aper_cfreq = []
-aper_wspyd = []
 
 for image_name in files[0:3]:
     if image_name.endswith("1.fits"): 
@@ -85,7 +90,6 @@ for image_name in files[0:3]:
         model_planet = psf_pos #gh_pos[1] #
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
-        aper_origin.append(f_ap_im)
         
         plt.imshow(int1*mask, origin='lower', cmap='gray', vmin=0, vmax=Imax)
         ap_im.plot(color ='r', lw=1.0)
@@ -125,7 +129,6 @@ for image_name in files[0:3]:
                                                               R_1, aspect_value, 
                                                               model_planet)
         print("The aperture flux of the model planet in the warped image is: ", f_ap_w)
-        aper_warped.append(f_ap_w)
         
 
         # First we take out the intensity change in radial direction due to the
@@ -147,7 +150,6 @@ for image_name in files[0:3]:
                                                               model_planet)
         print("The aperture flux of the model planet in the flattened image is: ", f_ap_f)
         print("This corresponds to 100 %")
-        aper_flat.append(f_ap_f)
 
         ## Plot the output and its fft
         fourier = np.fft.fftshift(np.fft.fft2(warped))
@@ -222,11 +224,11 @@ for image_name in files[0:3]:
                 fourier[-b, :] = fourier[-b, :] / background
             b -= 1
         """
-        
+        """
         ## Set everything outside a specific area to zero
         neg_r = 40
         neg_a = 300
-        """
+        
         q = 1 #10**(-3)
         fourier[:middle-R_1-neg_r+1, :] = fourier[:middle-R_1-neg_r+1, :]*q
         fourier[middle-R_1+neg_r:, :] = fourier[middle-R_1+neg_r:, :]*q
@@ -391,7 +393,6 @@ for image_name in files[0:3]:
                                                                     model_planet)
         print("The aperture flux of the model planet without (only at radial freq=0) spyders is: ", f_ap_fft)
         print("This corresponds to ", round(100/f_ap_f*f_ap_fft, 3), " %")
-        aper_cfreq.append(f_ap_fft)
         
         plt.figure(figsize=(8, 16*aspect_value))
 
@@ -424,6 +425,7 @@ for image_name in files[0:3]:
         
         # Ratio in radial direction in order to make a Gaussian subtraction of all 
         # frequencies in radial direction (also the larger ones)
+        neg_r = 40
         cen_r = int((R_2-R_1)/2)
         ratio_gauss = np.sum(abs(fourier[cen_r+1:cen_r+neg_r, int(len(phis)/2)-w:
                                          int(len(phis)/2)-1]), axis=1)/np.sum(abs(spid_center[
@@ -487,7 +489,6 @@ for image_name in files[0:3]:
                                                                     model_planet)
         print("The aperture flux of the model planet without spyders is: ", f_ap_fft)
         print("This corresponds to ", round(100/f_ap_f*f_ap_fft, 3), " %")
-        aper_wspyd.append(f_ap_fft)
         
         plt.figure(figsize=(8, 16*aspect_value))
 

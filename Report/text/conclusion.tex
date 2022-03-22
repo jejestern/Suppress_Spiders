@@ -1,0 +1,10 @@
+The program uses Fourier transformation to suppress the spiders in astronomical data.
+Here we use data from HD142527 and used the aperture fluxes of the ghosts and 
+a simulated PSF to adjust the parameters for the suppression until they fit our
+expectations. 
+We use a Gaussian profile for the suppression, but instead of subtracting (how
+it should be) we divide by the profile. This is a really stable action, but it 
+is not correct, since dividing is like treating the spiders as if they are 
+convolutions in the image plane, which they aren't. Still we receive some kind 
+of a good result where the spiders are suppressed. The cool thing about the 
+result however is, that the image gets a smooth background.
