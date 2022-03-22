@@ -90,7 +90,7 @@ where $\mu$ is the mean (location) and $\sigma$ is the standard deviation (width
 Also we change to the image format of the warped image which is not quadratic but rectangular. Four our simulations we choose the radius range 254 to 454 pixels and compare it to the data from HD142527 in this range, which can be seen in figure \ref{fig:warped_254_454}. We have chosen the radius range such that the ghosts lie within it and one of the ghost is in the center of the radius range. So that latter on we can make sure, that we are able to suppress the signal from the spiders without loosing much of the ghosts which we use to simulate a really bright exoplanet. 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=1.0\textwidth]{pics/warped_254_454.pdf}
+		\includegraphics[width=1.1\textwidth]{pics/warped_254_454.pdf}
 		\caption{An image of HD142527 which is warped to the $r$-$\varphi$ plane and the radial intensity drop-off is subtracted.}
 		\label{fig:warped_254_454}
 \end{figure}
@@ -143,7 +143,7 @@ In conclusion we can say that for four spiders with a 180 degrees symmetry which
 For the simulation of the spiders we use the knowledge which we have gained before from the Gaussian beams. In angular direction the spiders have a profile which is similar to a Gaussian, we therefore use Gaussian profiles for the simulation. In radial direction the spiders get thinner and their intensity decreases. Additionally all spiders have different widths and heights/intensities. Figure \ref{fig:simulated_spyder} shows the simulation of the spiders and the Fourier transformation of it. We see that in contrast to the Fourier transformation of the beams, Gaussian or stair function, there are not only non-zero frequencies at radial frequency zero, but they spread into all radial frequencies around the central angular frequencies. This radial spread is caused by the change of the width and intensity in radial direction.\\
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=1.0\textwidth]{pics/simulated_spyder.pdf}
+		\includegraphics[width=1.1\textwidth]{pics/simulated_spyder.pdf}
 		\caption{For a better understanding we simulate the spiders (top) and Fourier transform it (bottom).}
 		\label{fig:simulated_spyder}
 \end{figure}
@@ -170,17 +170,17 @@ For radial frequencies other than zero the intensity decreases rapidly to a smal
 The data will also include noise, therefore it is also important to know which effect the noise has on the Fourier transformed image. We simulate the noise by adding a random field to the simulated spider image with values between $0$ and $0.75$, since this is also about the range of the noise in our data. Figure \ref{fig:simulated_spider_noise} shows the simulated image and its frequency plane. On the first sight we see that the frequency background increased due to the noise. If we take a closer look at the intensities of the frequencies, see figure \ref{fig:simulated_spider_noise}, we find that the noisy background of the image plane produces a noisy background in the frequency plane which swallows every signal which is smaller than the noise. This means we loose a lot of information due to the noise, but this was to be expected, since this is also the effect the noise has in the image plane. Additionally the noise leads to a large increase of the intensity of the central frequency.\\
 This means that due to the noise the Gaussian profile which best fits the Fourier transformation of the simulated spider at radial frequency zero is now not anymore the one with width $10.8 \frac{1}{\mathrm{rad}}$. The fit before was a good description for the bottom part of the Fourier transformation, but now this part is cut of, and the only part of the signal which is left, is the one which is mainly dominated by the widest spider. We choose a Gaussian profile of width $8.7 \frac{1}{\mathrm{rad}}$ as it is shown in figure \ref{fig:simspi_noise_angularfreq}.\\
 In general we see that only the frequency close to the center are larger than the noise, such that the only radial frequencies which still can play a role are between $(-0.06, 0.06)$ $\frac{1}{\mathrm{px}}$ and the only angular frequencies are between $[-23, 23]$ $\frac{1}{\mathrm{rad}}$. This is luckily almost the same area which we before defined the be the most important. \\
-We only looked at the effect randomly distributed noise has on the frequency plane, but there are also other types of noise distribution which might have a different effect. Especially the high increase of the central frequency might be different. The noisy background in the frequency plane will most probably be there also for other types of noise distributions, but the level of the background might be not distributed around a constant line, like like this is the case here or the distribution around the line is different. 
+We only looked at the effect randomly distributed noise has on the frequency plane, but there are also other types of noise distribution which might have a different effect. Especially the high increase of the central frequency might be different. The noisy background in the frequency plane will most probably be there also for other types of noise distributions, but the level of the background might be not distributed around a constant line, like this is the case here or the distribution around the line is different. 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=1.0\textwidth]{pics/simulated_spider_noise.pdf}
-		\caption{The image on top shows a simulation of the spiders in radius range $[254, 545]$ with a noisy background and on the bottom is the respective frequency plane.}
+		\includegraphics[width=1.1\textwidth]{pics/simulated_spider_noise.pdf}
+		\caption{The image on top shows a simulation of the spiders in radius range $[254, 454]$ with a noisy background and on the bottom is the respective frequency plane.}
 		\label{fig:simulated_spider_noise}
 \end{figure}
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=1.0\textwidth]{pics/simspi_noise_angularfreq.pdf}
-	\caption{The Fourier transform from figure \ref{fig:simulated_spider_noise} at different radial frequencies and a Gaussian profile as reference. }
+	\caption{The Fourier transform from figure \ref{fig:simulated_spider_noise} at different radial frequencies and a Gaussian profile as reference.}
 \label{fig:simspi_noise_angularfreq}
 \end{figure}
 
@@ -198,7 +198,7 @@ Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF prof
 \end{figure}
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=1.0\textwidth]{pics/PSF_fourier.pdf}
+		\includegraphics[width=1.1\textwidth]{pics/PSF_fourier.pdf}
 		\caption{An image with a PSF (top) is transformed into the frequency space (bottom).}
 		\label{fig:PSF_fourier}
 \end{figure}
@@ -212,7 +212,7 @@ Figure \ref{fig:PSF_cut_image} shows a cut through the Gaussian and the PSF prof
 We want to combine the knowledge about the frequency plane about the spiders with the one from the PSF. Figure \ref{fig:simulated_spyder_PSF} shows the simulated image which contains the spiders and a PSF and its Fourier transform. Figure \ref{fig:simspi_PSF_angularfreq} shows a horizontal cut through the frequency space. Since the image is an addition of the spider image and the PSF image and the Fourier transform is linear, the frequency plane should also be an addition. This is also what we see from our images. However this addition is hard to see in the logarithmic plot especially around the center frequencies. We need to keep this in mind for later, so that when we want to suppress the frequency signal from the spider, we do not accidentally subtract also signal form potential point-sources. Especially when the point-sources are really week then there frequency signals will be even weaker. 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=1.0\textwidth]{pics/simulated_spyder_PSF.pdf}
+		\includegraphics[width=1.1\textwidth]{pics/simulated_spyder_PSF.pdf}
 		\caption{A simulation of the spiders including a PSF to simulate a point-source, like an exoplanet and the respective frequency plane.}
 		\label{fig:simulated_spyder_PSF}
 \end{figure}

@@ -79,10 +79,10 @@ for image_name in files[0:3]:
         psf[700:900, 200:400] = psf[512-100:512+100, 512-100:512+100]
         psf[512-100:512+100, 512-100:512+100] = psf[0:200, 0:200]
         
-        #int1 = int1 + psf
+        int1 = int1 + psf
         
         ## Computation of the aperture flux of the ghost
-        model_planet =  gh_pos[1] #  psf_pos
+        model_planet = psf_pos #gh_pos[1] #
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
         aper_origin.append(f_ap_im)
@@ -463,15 +463,16 @@ for image_name in files[0:3]:
         r_p = cen_r + 1
         ratio_i = 0
         h = 3
-        print(ratio_gauss)
         while r_n > cen_r - h:
-            w_s = int(0.75*w * ratio_gauss[ratio_i])
-            fourier[r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
-                r_n, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
-                    gauss_s[int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]*ratio_gauss[ratio_i])
-            fourier[r_p, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s] = fourier[
-                r_p, int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]/(
-                    gauss[int(len(phis)/2)-w_s:int(len(phis)/2)+w_s]*ratio_gauss[ratio_i])
+            w = int(45* ratio_gauss[ratio_i])
+            print("The width used is ", 45/warped_shape[0]*phi_freq[-1]*2)
+            print("We are right know dividing at radial frequency: ", radi_freq[r_p])
+            fourier[r_n, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
+                r_n, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
+                    gauss_s[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
+            fourier[r_p, int(len(phis)/2)-w:int(len(phis)/2)+w] = fourier[
+                r_p, int(len(phis)/2)-w:int(len(phis)/2)+w]/(
+                    gauss[int(len(phis)/2)-w:int(len(phis)/2)+w]*ratio_gauss[ratio_i])
             r_n -= 1
             r_p += 1
             ratio_i += 1
