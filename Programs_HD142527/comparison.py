@@ -38,8 +38,10 @@ psf[512-100:512+100, 512-100:512+100] = psf[0:200, 0:200]
 
 
 ## The object for which we will do the aperture flux calculations
-model_planet = gh_pos[1] #psf_pos #
+model_planet = psf_pos #gh_pos[0] #
 
+# This variable tells us, if we calculate the erro too, or not
+error = False
 
 ########## The image path of the images taken in the P2 mode ############
 path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
@@ -116,9 +118,22 @@ for image_name in files:
         F_l, _, _ = aperture_flux_warped(flatten_l, shape, R_1, aspect_rad, model_planet)
         print("The aperture flux of the model planet without spyders is: ", F_l)
         aper_lfreq.append(F_l)
+        
+        # Error Calculation with the help of Poisson distribution -> does not work...
+        if error == True:
+            
+            image = np.where(int1.copy() <= 0, 0.1, int1.copy())
+            
+            for i in range(2):
+                img = np.random.poisson(image)
+                
+                i += 1
 
-        
-        
+# Save the aperture fluxes in a txt file
+np.savez('comparison/aperture_fluxes.npz', name1=aper_origin, name2=aper_warped, 
+         name3=aper_flat, name4=aper_cfreq, name5=aper_lfreq)
+    
+# Plot the outputs       
 x_len = np.arange(len(aper_origin))
 
 plt.figure()
@@ -127,8 +142,11 @@ plt.plot(x_len, aper_warped, 'x', label="Warped")
 plt.plot(x_len, aper_flat, 'x', label="Flattened")
 plt.plot(x_len, aper_cfreq, 'x', label="Suppressing central radial frequency")
 plt.plot(x_len, aper_lfreq, 'x', label="Suppressing lower frequencies")
-plt.ylabel("Aperture flux")
+plt.xlabel("Images from HD142527")
+plt.ylabel("Aperture flux of ghost 2")
 plt.legend()
+plt.tight_layout()
+#plt.savefig("Ghost2_apertures.pdf")
 plt.show()
 
 
@@ -145,5 +163,17 @@ plt.ylabel("Percentual aperture change")
 plt.legend()
 plt.show()
 
+# We plot the percentual aperture change, starting by the flattened image
+plt.figure()
+plt.plot(x_len, 100/aper_flat*aper_flat, 'x', label="Flattened")
+plt.plot(x_len, 100/aper_flat*aper_cfreq, 'x', label="Suppressing central radial frequency")
+plt.plot(x_len, 100/aper_flat*aper_lfreq, 'x', label="Suppressing lower frequencies")
+plt.xlabel("Images from HD142527")
+plt.ylabel("Aperture change due to suppression: ghost 2  [%]")
+plt.legend()
+plt.tight_layout()
+#plt.savefig("Ghost2_apertures_perc.pdf")
+plt.legend()
+plt.show()
 
         
