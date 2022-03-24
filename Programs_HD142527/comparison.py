@@ -90,7 +90,7 @@ for image_name in files:
         annu_im.plot(color ='#0547f9', lw=1.0)
         plt.colorbar()
         plt.tight_layout()
-        #plt.savefig("interpolation/HDimg_R150_R300.pdf")
+        #plt.savefig("comparison/HDimg_PSF.pdf")
         plt.show()
         
         # Spider suppression by using Gaussian division 
