@@ -1,4 +1,5 @@
 \section{Aperture Photometry}
+\label{sec:aperture_phot}
 In order to determine the flux of different objects in astrophysics, like stars and planets, aperture photometry can be used. This method sums the counts of the pixels inside a certain aperture around the star. In our case this aperture is usually a circle. In order to account for the background noise an annulus around the aperture is taken and the mean of the summed up pixels inside the annulus is subtracted from the apertures pixels. The flux of this aperture is then given by \cite{Gisin}
 \begin{equation}
 	F_{ap} = F_{tot} - n_{px} \langle F_{bg} \rangle ,
