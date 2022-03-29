@@ -16,10 +16,10 @@ def e_func(x, a, b, c):
 def distance(point1, point2):
     return np.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
 
-def gaussianBeam(base, x_position, D0):
+def gaussianBeam(base, x_position, D0, I=1):
     rows, cols = base.shape
     for x in range(cols):
-        base[:,x] = np.exp(((-distance((0,x), (0, x_position))**2)/(2*(D0**2))))
+        base[:,x] = I*np.exp(((-distance((0,x), (0, x_position))**2)/(2*(D0**2))))
     return base
 
 def gaussianSpyder(base, x_position, D0, I=1):

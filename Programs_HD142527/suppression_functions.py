@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Includes functions used for the suppression. As a function which plots the image
+and the fourier transform in one plot. And a function which divides the FFT by
+a Gaussian in order to suppress the spiders.
 
 Created on 2022-03-22
 Jennifer Studer <studerje@student.ethz.ch>
@@ -14,7 +17,38 @@ from transformations_functions import to_rphi_plane
 from filter_functions import e_func, Gaussian1D
 
 def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax, 
-                     fourier_enl=False):
+                     fourier_enl=None, savefig=None):
+    """
+
+    Parameters
+    ----------
+    img : 2D array
+        Image which we want to plot
+    fourier : 2D array
+        FFT of the image
+    R_1 : int
+        Minimal radius considered in the radius range
+    R_2 : int
+        Maximal radius considered in the radius range
+    phi_freq : 1D array
+        The frequency range in angular direction
+    radi_freq : 1D array
+        The frequency range in radial direction
+    Imin : float
+        Minimal intensity plotted of the image
+    Imax : float
+        Maximal intensity plotted of the image
+    fourier_enl : [x_lim, y_lim], optional
+        If we only want to look at a specific region of the FFT. The default is None.
+    savefig : str, optional
+        The title of the pdf, if we want to save the image. The default is None.
+
+    Returns
+    -------
+    int
+        No return, just plots the image.
+
+    """
     
     shape = img.shape
     
@@ -42,11 +76,13 @@ def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax,
     plt.xlabel(r'Frequency [$\frac{1}{\mathrm{rad}}$]')
     plt.ylabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
     plt.ylim((-0.5, 0.5))
-    if fourier_enl == True:
-        plt.xlim((-20, 20))
-        plt.ylim((-0.06, 0.06))
+    if fourier_enl != None:
+        plt.xlim(fourier_enl[0])
+        plt.ylim(fourier_enl[1])
     plt.colorbar()
  
+    if savefig != None:
+        plt.savefig(savefig)
     plt.tight_layout()
     plt.show()
     
@@ -154,10 +190,10 @@ def suppress_division(img, R_1, R_2, plot=False):
                          Imin, Imax)
         
         fourier_plotting(flatten_c, fourier_c, R_1, R_2, phi_freq, radi_freq, 
-                         Imin, Imax, fourier_enl=True)
+                         Imin, Imax, fourier_enl=[(-20, 20), (-0.06, 0.06)])
         
         fourier_plotting(flatten_l, fourier_l, R_1, R_2, phi_freq, radi_freq, 
-                         Imin, Imax, fourier_enl=True)
+                         Imin, Imax, fourier_enl=[(-20, 20), (-0.06, 0.06)])
         
         
     return warped_shape, warped, flatten, flatten_c, flatten_l

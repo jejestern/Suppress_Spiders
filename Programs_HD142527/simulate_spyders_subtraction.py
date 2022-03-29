@@ -65,6 +65,39 @@ spos_shift = [42+shift,  670+shift]   #670+shift
 degsym = 180/360*warp_shape[0]
 
 
+# We insert smoothed (gaussian) beams at the positions of the spiders with 
+# the same width and intensity
+beamG1 = gaussianBeam(warp_or.copy(), spos_shift[0], 5)*1.7
+beamG2 = gaussianBeam(warp_or.copy(), spos_shift[1], 10)*2.5
+beamG3 = gaussianBeam(warp_or.copy(), spos_shift[0]+degsym, 8)*2.1
+beamG4 = gaussianBeam(warp_or.copy(), spos_shift[1]+degsym, 6)*0.8
+
+#gauss = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_g, I_g)
+#gauss_inner = Gaussian1D(phi_freq.copy(), int(len(phis)/2), w_gi, I_g)
+
+beamG_shift = beamG1 + beamG2 + beamG3 + beamG4
+fft_beamG_shift = np.fft.fftshift(np.fft.fft2(beamG_shift))
+
+# We want to plot  the fft
+fig1, ax1 = plt.subplots(2, 1, figsize=(8, 50*aspect_value))  
+ax1[0].plot(phis, beamG_shift[cen_r, :], 
+            label=r"Gaussian spiders: $\sigma_1$ = %.3f, $\sigma_2$ = %.3f, $\sigma_3$ = %.3f, $\sigma_4$ = %.3f" 
+            %(5/warp_shape[0]*2*np.pi, 10/warp_shape[0]*2*np.pi, 8/warp_shape[0]*2*np.pi, 
+              6/warp_shape[0]*2*np.pi))
+ax1[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                  r'$3\pi/2$', r'$2\pi$'])
+ax1[0].set_xlabel(r'$\varphi$ [rad]')
+ax1[0].legend(loc='upper right')
+
+ax1[1].semilogy(phi_freq, abs(fft_beamG_shift[cen_r, :]), label="FFT")
+ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax1[1].set_ylim((10**(-3), 4*10**(4)))
+ax1[1].set_xlim((-70, 70))
+ax1[1].legend()
+#plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
+plt.show()
+
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -202,6 +235,20 @@ plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 plt.legend(loc='upper right')
 plt.tight_layout()
 plt.savefig("fourier/simspi_angularfreq_enlarged.pdf")
+plt.show()
+
+
+# We compare the fft of the simulated spider and the simulated gaussian beam at
+# central radial frequency
+plt.figure(figsize=(8, 24*aspect_value))
+plt.semilogy(phi_freq, abs(fft_spydG[cen_r, :]), label ="radial freq. = %.2f" %(radi_freq[y]))
+plt.semilogy(phi_freq, abs(fft_beamG_shift[cen_r, :]), label="Gaussian beams")
+plt.ylim((10**(-3), 4*10**(4)))
+plt.xlim((-70, 70))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+#plt.savefig("fourier/simspi_angularfreq.pdf")
 plt.show()
 
 """

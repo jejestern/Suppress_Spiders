@@ -87,7 +87,7 @@ for i in range(4):
     # Fourier transform the warped image with beams
     fft_G = np.fft.fftshift(np.fft.fft2(img_G))
     
-    ax[1].semilogy(phi_freq, abs(fft_G[middle-R_1, :] + 0.0001), label="Gaussian beams")
+    ax[1].plot(phi_freq, fft_G[middle-R_1, :].real, label="Gaussian beams")
     
     
 ax[0].set_title("Horizontal cut through")
@@ -191,7 +191,7 @@ beamG = beamG1 + beamG2 + beamG3 + beamG4
 # Fourier transform the warped image with beams
 fft_beamG = np.fft.fftshift(np.fft.fft2(beamG))
 
-# We want to plot  the mean of the fft
+# We want to plot the fft
 fft_mean = fft_beamG[middle-R_1, :].copy()
 for i in range(len(fft_mean)):
     if i > 100 and i < len(fft_mean) - 100:

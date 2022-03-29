@@ -46,7 +46,7 @@ def fourier(image, title):
     
     # Plot the horizontal cut thorugh the FFT
     plt.figure()
-    plt.semilogy(freq, abs(fourier_im[int(image.shape[0]/2), :] + 0.0001), label='Intensity at frequency 0 (y-axis)')
+    plt.plot(freq, abs(fourier_im[int(image.shape[0]/2), :]), label='Intensity at frequency 0 (y-axis)')
     #plt.ylim((10**(1.98), 10**(2.02)))
     plt.xlabel(r'Frequency [$\frac{1}{\mathrm{px}}$]')
     plt.ylabel('Intensity')
