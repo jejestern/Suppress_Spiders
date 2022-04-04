@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import aotools
 from transformations_functions import polar_corrdinates_grid, radius_mask, angle_mask, rphi_to_xy
 from aperture_fluxes import aperture_flux_image, aperture_flux_warped
-from suppression_functions import suppress_division
+from suppression_functions import suppress_division, suppress_subtraction
 
 
 # Choose the radial range into which we are warping the image
@@ -38,10 +38,10 @@ psf[512-100:512+100, 512-100:512+100] = psf[0:200, 0:200]
 
 
 ## The object for which we will do the aperture flux calculations
-model_planet = psf_pos #gh_pos[0] #
+model_planet = gh_pos[0] #psf_pos #
 
-# This variable tells us, if we calculate the erro too, or not
-error = False
+# This variable tells us, if we do suprression by division or by subtraction
+suppression = 'subtraction' #'division'  # 
 
 ########## The image path of the images taken in the P2 mode ############
 path = "/home/jeje/Dokumente/Masterthesis/Programs_HD142527/ZirkumstellareScheibe_HD142527/P2_mode"
@@ -59,7 +59,7 @@ for image_name in files:
     if image_name.endswith("1.fits"): 
         # Reading in the images from camera 1
         img_data = fits.getdata(path + "/" + image_name, ext=0)
-        fits.info(path + "/" + image_name)
+        #fits.info(path + "/" + image_name)
 
         # Choose the intensity 1
         int1 = img_data[0,:,:]
@@ -93,9 +93,15 @@ for image_name in files:
         #plt.savefig("comparison/HDimg_PSF.pdf")
         plt.show()
         
-        # Spider suppression by using Gaussian division 
-        shape, warped, flatten, flatten_c, flatten_l = suppress_division(int1, R_1, R_2)
-
+        # Spider suppression
+        if suppression == 'division':
+            # Spider suppression by using Gaussian division 
+            shape, warped, flatten, flatten_c, flatten_l = suppress_division(int1, R_1, R_2)
+        
+        elif suppression == 'subtraction':
+            # Spider suppression by using subtraction
+            shape, warped, flatten, flatten_c = suppress_subtraction(int1, R_1, R_2, plot=True)
+            
         ## The different aspect ratio used for plotting
         aspect_rad = (2*np.pi/shape[0])/((R_2-R_1)/shape[1])
 
@@ -108,30 +114,27 @@ for image_name in files:
         F_f,  _, _ = aperture_flux_warped(flatten, shape, R_1, aspect_rad, model_planet)
         print("The aperture flux of the model planet in the flattened image is: ", F_f)
         aper_flat.append(F_f)
-
-        ## Aperture flux of the model planet after radial central freq division 
+        
+        ## Aperture flux of the model planet after radial central freq division/subtraction 
         F_c, _, _ = aperture_flux_warped(flatten_c, shape, R_1, aspect_rad, model_planet)
         print("The aperture flux of the model planet with central radial freq division: ", F_c)
         aper_cfreq.append(F_c)
-
-        ## Aperture flux of the model planet after suppression through divisioin
-        F_l, _, _ = aperture_flux_warped(flatten_l, shape, R_1, aspect_rad, model_planet)
-        print("The aperture flux of the model planet without spyders is: ", F_l)
-        aper_lfreq.append(F_l)
         
-        # Error Calculation with the help of Poisson distribution -> does not work...
-        if error == True:
+        if suppression == 'division':
             
-            image = np.where(int1.copy() <= 0, 0.1, int1.copy())
+            ## Aperture flux of the model planet after suppression through divisioin
+            F_l, _, _ = aperture_flux_warped(flatten_l, shape, R_1, aspect_rad, model_planet)
+            print("The aperture flux of the model planet without spyders is: ", F_l)
+            aper_lfreq.append(F_l)
             
-            for i in range(2):
-                img = np.random.poisson(image)
-                
-                i += 1
 
 # Save the aperture fluxes in a txt file
-np.savez('comparison/aperture_fluxes.npz', name1=aper_origin, name2=aper_warped, 
-         name3=aper_flat, name4=aper_cfreq, name5=aper_lfreq)
+if suppression == 'division':
+    np.savez('comparison/aperture_fluxes.npz', name1=aper_origin, name2=aper_warped, 
+             name3=aper_flat, name4=aper_cfreq, name5=aper_lfreq)
+elif suppression == 'subtraction':
+    np.savez('comparison/aperture_fluxes.npz', name1=aper_origin, name2=aper_warped, 
+             name3=aper_flat, name4=aper_cfreq)
     
 # Plot the outputs       
 x_len = np.arange(len(aper_origin))
@@ -141,33 +144,37 @@ plt.plot(x_len, aper_origin, 'x', label="Original Image")
 plt.plot(x_len, aper_warped, 'x', label="Warped")
 plt.plot(x_len, aper_flat, 'x', label="Flattened")
 plt.plot(x_len, aper_cfreq, 'x', label="Suppressing central radial frequency")
-plt.plot(x_len, aper_lfreq, 'x', label="Suppressing lower frequencies")
+if suppression == 'division':
+    plt.plot(x_len, aper_lfreq, 'x', label="Suppressing lower frequencies")
 plt.xlabel("Images from HD142527")
-plt.ylabel("Aperture flux of ghost 2")
+plt.ylabel("Aperture flux of ghost 1")
 plt.legend()
 plt.tight_layout()
 #plt.savefig("Ghost2_apertures.pdf")
 plt.show()
 
-
-ap_ratio = []
-ap_ratio_f = []
-for i in range(len(aper_origin)):
-    ap_ratio.append(100/aper_origin[i]*aper_lfreq[i])
-    ap_ratio_f.append(100/aper_flat[i]*aper_lfreq[i])
-    
-plt.figure()
-plt.plot(x_len, ap_ratio, 'o', label="Original image to final one")
-plt.plot(x_len, ap_ratio_f, 'o', label="Flattened image to final one")
-plt.ylabel("Percentual aperture change")
-plt.legend()
-plt.show()
+if suppression == 'division':
+    ap_ratio = []
+    ap_ratio_f = []
+    for i in range(len(aper_origin)):
+        ap_ratio.append(100/aper_origin[i]*aper_lfreq[i])
+        ap_ratio_f.append(100/aper_flat[i]*aper_lfreq[i])
+        
+    plt.figure()
+    plt.plot(x_len, ap_ratio, 'o', label="Original image to final one")
+    plt.plot(x_len, ap_ratio_f, 'o', label="Flattened image to final one")
+    plt.ylabel("Percentual aperture change")
+    plt.legend()
+    plt.show()
 
 # We plot the percentual aperture change, starting by the flattened image
+aper_flat = np.array(aper_flat)
+
 plt.figure()
 plt.plot(x_len, 100/aper_flat*aper_flat, 'x', label="Flattened")
 plt.plot(x_len, 100/aper_flat*aper_cfreq, 'x', label="Suppressing central radial frequency")
-plt.plot(x_len, 100/aper_flat*aper_lfreq, 'x', label="Suppressing lower frequencies")
+if suppression == 'division':
+    plt.plot(x_len, 100/aper_flat*aper_lfreq, 'x', label="Suppressing lower frequencies")
 plt.xlabel("Images from HD142527")
 plt.ylabel("Aperture change due to suppression: ghost 2  [%]")
 plt.legend()

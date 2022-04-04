@@ -81,7 +81,7 @@ ax1[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$',
 ax1[0].set_xlabel(r'$\varphi$ [rad]')
 ax1[0].legend(loc='upper right')
 
-ax1[1].plot(phi_freq, abs(fft_sep), label="FFT")
+ax1[1].plot(phi_freq, fft_sep.real, label="FFT")
 ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 #ax1[1].set_ylim((10**(-3), 4*10**(4)))
 ax1[1].set_xlim((-20, 20))
@@ -145,7 +145,7 @@ ax1[0].set_xlabel(r'$\varphi$ [rad]')
 ax1[0].legend(loc='upper right')
 
 ax1[1].plot(phi_freq, fft_beamG[cen_r, :].real, label="FFT")
-ax1[1].plot(phi_freq, fft_g*fac.real, label="FFT of previous normalised")
+ax1[1].plot(phi_freq, fft_g.real*fac, label="FFT of previous normalised")
 ax1[1].plot(phi_freq, fft_sep.real*fac_sep, label="seperation")
 ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
 #ax1[1].set_ylim((10**(-3), 4*10**(4)))
@@ -154,4 +154,63 @@ ax1[1].legend()
 #plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
 plt.show()
 
+##############################################################################
+################ Complete Simulation of spiders ##############################
+##############################################################################
 
+# We insert smoothed (gaussian) simulated spyders at the positions of the spyders        
+spydG1 = gaussianSpyder(warp_or.copy(), spos[0], 5, 1.7)
+spydG2 = gaussianSpyder(warp_or.copy(), spos[1], 10, 2.5)
+spydG3 = gaussianSpyder(warp_or.copy(), spos[0]+degsym, 8, 2.1)
+spydG4 = gaussianSpyder(warp_or.copy(), spos[1]+degsym, 6, 0.8)
+
+spydG = spydG1 + spydG2 + spydG3 + spydG4
+  
+# Fourier transform the warped image with beams
+fft_spydG = np.fft.fftshift(np.fft.fft2(spydG))
+
+# Factor which describes the intensity difference between 1D and 2D
+fac_spi = fft_spydG[cen_r, cen_phi]/fft_g[cen_phi]
+
+plt.figure(figsize=(8, 24*aspect_value))
+plt.plot(phi_freq, fft_spydG[cen_r, :].real, label ="radial freq. = %.2f" %(radi_freq[cen_r]))
+plt.plot(phi_freq, fft_g.real*fac_spi, label="FFT of previous normalised")
+plt.xlim((-20, 20))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_angularfreq.pdf")
+plt.show()
+
+# The same as before, but with an enlarged x-range
+y = cen_r
+plt.figure(figsize=(8, 24*aspect_value))
+while y > 0:
+    plt.plot(phi_freq, fft_spydG[y, :].real, label ="radial freq. = %.2f" %(radi_freq[y]))
+    if y == int((R_2-R_1)/2):
+        y -= 1
+    elif abs(radi_freq[y]) < 0.04:
+        y -= 5
+    else:
+        y -= 40
+plt.xlim((-20, 20))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_angularfreq_enlarged.pdf")
+plt.show()
+
+
+# We look at radial freq = 0.01
+# Factor which describes the intensity difference between 1D and 2D
+fac_spi = fft_spydG[cen_r+1, cen_phi]/fft_g[cen_phi]
+
+plt.figure(figsize=(8, 24*aspect_value))
+plt.plot(phi_freq, fft_spydG[cen_r+1, :].real, label ="radial freq. = %.2f" %(radi_freq[cen_r+1]))
+plt.plot(phi_freq, fft_g.real*fac_spi, label="FFT of previous normalised")
+plt.xlim((-20, 20))
+plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.savefig("fourier/simspi_angularfreq.pdf")
+plt.show()

@@ -6,6 +6,8 @@ Jennifer Studer <studerje@student.ethz.ch>
 """
 
 import numpy as np
+from scipy.optimize import curve_fit
+from filter_functions import e_func
 #from sys import argv, exit
 #import os
 #from astropy.io import fits
@@ -135,6 +137,41 @@ def from_rphi_plane(warped, im_shape, rmin, rmax):
     h = h.reshape(im_shape[0], im_shape[1])
     
     return h
+
+
+def flatten_img(warped_img, warped_shape, radi):
+    """
+    We take out the intensity change in radial direction due to the star in 
+    the center, by using an exponential fit function.
+    
+    Parameters
+    ----------
+    warped_img : float32, np.array, 2D 
+        r-phi plane image. 
+    warped_shape : (int, int)
+        Shape of the warped image.
+    radi : np.array, int, 1dimensional
+        Radial coordinates.
+
+    Returns
+    -------
+    flatten : float32, np.array, 2D 
+        r-phi plane image where the radial intensity change has been taken away.
+
+    """
+
+    flatten = warped_img.copy()
+        
+    ## Sum up the image along the phi axis
+    r_trend = np.sum(flatten, axis = 1)/warped_shape[0]
+
+    ## Fitting an exponential and subtract it from the warped image
+    popt, pcov = curve_fit(e_func, radi, r_trend)
+    
+    for i in range(warped_shape[0]):
+        flatten[:,i] = flatten[:,i] - e_func(radi, *popt)
+    
+    return flatten
 
 
 def polar_corrdinates_grid(im_shape, center):

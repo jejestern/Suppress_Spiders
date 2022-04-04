@@ -12,9 +12,10 @@ Jennifer Studer <studerje@student.ethz.ch>
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from transformations_functions import to_rphi_plane, flatten_img
+from filter_functions import Gaussian1D
+from scipy.signal import find_peaks
 from scipy.optimize import curve_fit
-from transformations_functions import to_rphi_plane
-from filter_functions import e_func, Gaussian1D
 
 def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax, 
                      fourier_enl=None, savefig=None):
@@ -67,6 +68,7 @@ def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax,
     plt.ylabel('Radius')
     plt.xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], 
                [r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'])
+    #plt.ylim((300, 400))
     plt.colorbar()
     
     plt.subplot(212)
@@ -88,6 +90,7 @@ def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax,
     
     return 0
 
+    
 def suppress_division(img, R_1, R_2, plot=False):
     
     # Calculation of the image shapes
@@ -111,17 +114,8 @@ def suppress_division(img, R_1, R_2, plot=False):
     
     # First we take out the intensity change in radial direction due to the
     # star in the center, by using an exponential fit function.
-    flatten = warped.copy()
-        
-    ## Sum up the image along the phi axis
-    r_trend = np.sum(flatten, axis = 1)/warped_shape[0]
-
-    ## Fitting an exponential and subtract it from the warped image
-    popt, pcov = curve_fit(e_func, radi, r_trend)
-    
-    for i in range(warped_shape[0]):
-        flatten[:,i] = flatten[:,i] - e_func(radi, *popt)
-        
+    flatten = flatten_img(warped, warped_shape, radi)
+ 
     # Fourier transform the flatten image
     fourier_f = np.fft.fftshift(np.fft.fft2(flatten))
          
@@ -198,5 +192,132 @@ def suppress_division(img, R_1, R_2, plot=False):
         
     return warped_shape, warped, flatten, flatten_c, flatten_l
 
+def suppress_subtraction(img, R_1, R_2, plot=False):
+    
+    # Calculation of the image shapes
+    x_len, y_len = img.shape
+    
+    # Warp the image to the r-phi Plane    
+    warped = to_rphi_plane(img, (x_len, y_len), R_1, R_2)
+    warped_shape = warped.shape
+    warped = warped.T
+    
+    # Define the radial and angular coordinates
+    radi = np.arange(warped_shape[1])
+    phis = np.arange(warped_shape[0])/warped_shape[0]*2*np.pi
+    cen_r = int((R_2-R_1)/2)  # Central radius position
+    cen_phi = int(warped_shape[0]/2) # central angle position
+    
+    # The physical frequencies
+    phi_freq = np.fft.fftfreq(warped_shape[0], d=2*np.pi/warped_shape[0])
+    phi_freq = np.fft.fftshift(phi_freq)
+    radi_freq = np.fft.fftfreq(warped_shape[1])
+    radi_freq = np.fft.fftshift(radi_freq)
+    
+    # First we take out the intensity change in radial direction due to the
+    # star in the center, by using an exponential fit function.
+    flatten = flatten_img(warped, warped_shape, radi)
+ 
+    # Fourier transform the flatten image
+    fourier_f = np.fft.fftshift(np.fft.fft2(flatten))
+    
+    ################ Frequency subtraction: central freq #####################
+    
+    # We search for the positions of the spiders
+    ## Plot the total intensity of the image along the angular axis
+    phi_trend = np.sum(flatten, axis = 0)/warped_shape[0]
+        
+    ## The position of the spider, we know the minimal distance between the 
+    ## spiders from observations
+    min_dist = 1.36 # In radians
+    spos = find_peaks(phi_trend, distance=min_dist/(2*np.pi)*warped_shape[0])[0]
+    
+    # We search for the width and the maximal intensity of the spiders around 
+    # the central radius to simulate the spiders along this axis
+    thick_cen = 10  # The radial range around the cen_r considered
+    flatten_center = flatten[cen_r -thick_cen:cen_r+thick_cen, :]/(2*thick_cen)
+    phi_center = np.sum(flatten_center, axis = 0)
+        
+    ## We fit a smoothed gaussian (1D) to the spiders
+    width = []  # Resulting widths
+    g = 0  # This will be the simulated spiders along cen_r
+    for i in range(4):
+        n = 15  # The range around the spider in angular direction considered for fitting
+        phis_n = phis[spos[i]-n:spos[i]+n].copy()
+        phi_center_n = phi_center[spos[i]-n:spos[i]+n].copy()
+        
+        # Fitting
+        parameters, covariance = curve_fit(Gaussian1D, phis_n.copy(), phi_center_n.copy())
+        width.append(parameters[1])
+        fit_y = Gaussian1D(phis.copy(), parameters[0]+spos[i]-n, parameters[1], parameters[2])
+        
+        # Add the Gaussian fit of this spider to the others
+        g += fit_y
+    
+    # Fourier transform of the simulated 1D spiders
+    fft_g = np.fft.fftshift(np.fft.fft(g))
+    
+    # We want to know approx how much of the total intensity (=central frequency) 
+    # is caused by the spiders
+    I_tot = 0
+    for i in range(len(width)):
+        I_tot += np.sum(flatten[:, spos[i]-int(width[i]):spos[i]+int(width[i])])
+    
+    # Factor which describes the intensity difference between 1D and reality 
+    # caused by the spiders
+    fac = I_tot/fft_g[cen_phi]
 
+    # Subtraction along central radial frequencies
+    fourier_sub = fourier_f.copy()
+    spid_center = fourier_f[cen_r, :].copy()
+    spid_center = spid_center - fft_g*fac
+    fourier_sub[cen_r, :] = spid_center
+    
+    # We transform the fft back to the r-phi plane -> image where the spiders
+    # are subtracted (at least in the middle)
+    flatten_sub = np.fft.ifft2(np.fft.ifftshift(fourier_sub)).real
+    
+    if plot == True:
+        # Choose the intensity
+        Imax = 0.5
+        Imin = -0.5
+        
+        # We want to plot the real data and the simulation of the spiders and its fft
+        fig1, ax1 = plt.subplots(2, 1, figsize=(8, 8))  
+        ax1[0].plot(phis, phi_center, label="Mean intensity along central radii")
+        ax1[0].plot(phis, g, 'orange',
+                    label=r"Gaussian spiders: $\sigma_1$ = %.3f, $\sigma_2$ = %.3f, $\sigma_3$ = %.3f, $\sigma_4$ = %.3f" 
+                    %(width[0]/warped_shape[0]*2*np.pi, width[1]/warped_shape[0]*2*np.pi, 
+                      width[2]/warped_shape[0]*2*np.pi, width[3]/warped_shape[0]*2*np.pi))
+        ax1[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
+                                                                 r'$3\pi/2$', r'$2\pi$'])
+        ax1[0].set_xlabel(r'$\varphi$ [rad]')
+        ax1[0].legend(loc='lower right')
+        
+        ax1[1].plot(phi_freq, fft_g.real, 'orange', label="FFT of 1D spider simulation")
+        ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+        ax1[1].set_xlim((-20, 20))
+        ax1[1].legend()
+        #plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
+        plt.show()
+        
+        ## Plot along the central radial frequencies: before and after subtraction
+        plt.figure(figsize=(8, 4))
+        plt.plot(phi_freq, fourier_f[cen_r, :].real, label ="radial freq. = %.2f" %(radi_freq[cen_r]))
+        plt.plot(phi_freq, fourier_sub[cen_r, :].real, label ="Spider subtracted" %(radi_freq[cen_r]))
+        plt.xlim((-20, 20))
+        plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+        #plt.savefig("suppression/rad0.pdf")
+        plt.show()
+        
+        # Plot the flattened image and its fft
+        fourier_plotting(flatten, fourier_f, R_1, R_2, phi_freq, radi_freq, 
+                         Imin, Imax)  
+        
+        ## Plot the subtracted image and its fft
+        fourier_plotting(flatten_sub, fourier_sub, R_1, R_2, phi_freq, radi_freq, 
+                         Imin, Imax, fourier_enl=[(-20, 20), (-0.06, 0.06)])
    
+    return warped_shape, warped, flatten, flatten_sub
