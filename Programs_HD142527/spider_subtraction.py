@@ -71,10 +71,10 @@ for image_name in files[0:3]:
         psf[psf_pos[1]-100:psf_pos[1]+100, psf_pos[0]-100:psf_pos[0]+100] = psf[512-100:512+100, 512-100:512+100]
         psf[512-100:512+100, 512-100:512+100] = psf[0:200, 0:200]
         
-        int1 = int1 + psf
+        #int1 = int1 + psf
         
         ## Computation of the aperture flux of the ghost/PSF
-        model_planet = psf_pos #gh_pos[1] #
+        model_planet = psf_pos #gh_pos[0] #
         f_ap_im, ap_im, annu_im = aperture_flux_image(int1, model_planet)
         print("The aperture flux of the model planet in the original image is: ", f_ap_im)
         
@@ -303,7 +303,8 @@ for image_name in files[0:3]:
         ## Plot the output and its fft
         warped_back = np.fft.ifft2(np.fft.ifftshift(fourier_sub)).real
         fourier_plotting(warped_back, fourier_sub, R_1, R_2, phi_freq, radi_freq, Imin_small, 
-                         Imax_small, fourier_enl=[(-20, 20), (-0.06, 0.06)])
+                         Imax_small, fourier_enl=[(-20, 20), (-0.06, 0.06)], 
+                         savefig="subtraction/HDsubtracted.pdf")
         
         ## Computation of the aperture flux of the model planet in the flattened 
         ## and FFT back where a gaussian is subtracted from the center
@@ -389,7 +390,7 @@ for image_name in files[0:3]:
         
         # The function does everything done above -> summarize the essential 
         # things which work (so only central frequencies)
-        # _, _, _, _ = suppress_subtraction(int1, R_1, R_2, plot=True)
+        #_, _, _, _ = suppress_subtraction(int1, R_1, R_2, plot=True)
         
      
     

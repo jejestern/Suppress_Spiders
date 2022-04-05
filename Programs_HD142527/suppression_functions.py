@@ -83,9 +83,9 @@ def fourier_plotting(img, fourier, R_1, R_2, phi_freq, radi_freq, Imin, Imax,
         plt.ylim(fourier_enl[1])
     plt.colorbar()
  
+    plt.tight_layout()
     if savefig != None:
         plt.savefig(savefig)
-    plt.tight_layout()
     plt.show()
     
     return 0
@@ -298,7 +298,9 @@ def suppress_subtraction(img, R_1, R_2, plot=False):
         ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
         ax1[1].set_xlim((-20, 20))
         ax1[1].legend()
-        #plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
+        
+        plt.tight_layout()
+        #plt.savefig("subtraction/Spider_Gaussianfit_FFT.pdf")
         plt.show()
         
         ## Plot along the central radial frequencies: before and after subtraction
@@ -309,7 +311,7 @@ def suppress_subtraction(img, R_1, R_2, plot=False):
         plt.xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
         plt.legend(loc='upper right')
         plt.tight_layout()
-        #plt.savefig("suppression/rad0.pdf")
+        
         plt.show()
         
         # Plot the flattened image and its fft
