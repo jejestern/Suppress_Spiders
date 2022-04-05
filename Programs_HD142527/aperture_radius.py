@@ -53,6 +53,8 @@ def aperture_phot(image, norm, position, star_position, r_ap, plot):
         Signal to noise of the object
     ratio : float
         Contrast between the object and the star
+    ratio_err : float
+        Error of the contrast
 
     """
     
@@ -125,8 +127,13 @@ def aperture_phot(image, norm, position, star_position, r_ap, plot):
     spixel_star = sum(annulus_data_1d)/annulus_data_1d.shape[0]
     f_ap_star = aperture - apertures.area*spixel_star
     ratio = f_ap[0]/f_ap_star
-    
-    return fmean, sigma, SN, ratio
+    print(f_ap[0])
+    ratio_err = sigma/f_ap_star
+    print(sigma)
+    print(ratio_err)
+    print(f_ap_star)
+        
+    return fmean, sigma, SN, ratio, ratio_err
 
 def find_radius(image, norm, position, star_position):
     """

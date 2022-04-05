@@ -39,6 +39,8 @@ sigma_1 = []
 sigma_2 = []
 ratio_1 = []
 ratio_2 = []
+ratio_err_1 = []
+ratio_err_2 = []
 
 # We define the positions of the ghosts
 gh_pos = [(891.0, 600.0), (213.0, 387.0)]
@@ -73,19 +75,23 @@ for image_name in files:
         
         # We loop over the different ghosts
         for i in range(len(gh_pos)):
-            fmean, sigma, SN, ratio = aperture_phot(int1, norm, gh_pos[i], star_position, aperture_rad, True)
+            fmean, sigma, SN, ratio, ratio_err = aperture_phot(int1, norm, 
+                                                               gh_pos[i], 
+                                                               star_position, 
+                                                               aperture_rad, True)
             
             if i == 0:
                 SN_1.append(SN)
                 fmean_1.append(fmean)
                 sigma_1.append(sigma)
                 ratio_1.append(ratio)
+                ratio_err_1.append(ratio_err)
             else:
                 SN_2.append(SN)
                 fmean_2.append(fmean)
                 sigma_2.append(sigma)
                 ratio_2.append(ratio)
-
+                ratio_err_2.append(ratio_err)
             
         # Plot the image
         fig1, ax = plt.subplots(figsize=(12,12))
@@ -126,8 +132,8 @@ fmean_2_mean = np.mean(fmean_2)
 sigma_1_mean = np.mean(sigma_1)
 sigma_2_mean = np.mean(sigma_2)
 
-ratio_1_mean_err = ratio_1_mean * SN_1_mean/100
-ratio_2_mean_err = ratio_2_mean * SN_2_mean/100
+ratio_1_mean_err = np.mean(ratio_err_1)
+ratio_2_mean_err = np.mean(ratio_err_2)
 
 # Write the data in a txt file
 ghosts = open("/home/jeje/Dokumente/Masterthesis/Programs_HD142527/aperture_photometry/ghosts.txt", "w")
