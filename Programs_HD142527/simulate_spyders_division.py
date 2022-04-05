@@ -73,7 +73,24 @@ print(warp_shape[0])
 
 In = [1, 5]
 
-fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))    
+fig1, ax = plt.subplots(2, 1, figsize=(8, 40*aspect_value))
+
+img_G = gaussianBeam(warp_or.copy(), spos[0], 12)
+ax[0].plot(phis, img_G[middle-R_1, :], label="Gaussian at %.2f rad" %(spos[0]/warp_shape[0]*2*np.pi))
+
+# Fourier transform the warped image with beams
+fft_G = np.fft.fftshift(np.fft.fft2(img_G))
+    
+ax[1].plot(phi_freq, fft_G[middle-R_1, :].real, label="FFT of Gaussian at %.2f rad" %((spos[0])/warp_shape[0]*2*np.pi))
+    
+img_G = gaussianBeam(warp_or.copy(), spos[0]+degsym, 12)
+ax[0].plot(phis, img_G[middle-R_1, :], label="Gaussian at %.2f rad" %((spos[0]+degsym)/warp_shape[0]*2*np.pi))
+
+# Fourier transform the warped image with beams
+fft_G = np.fft.fftshift(np.fft.fft2(img_G))
+    
+ax[1].plot(phi_freq, fft_G[middle-R_1, :].real, label="FFT of Gaussian at %.2f rad" %((spos[0]+degsym)/warp_shape[0]*2*np.pi))
+"""
 for i in range(4):
     deg = 0
     if i >= 2:
@@ -88,7 +105,7 @@ for i in range(4):
     fft_G = np.fft.fftshift(np.fft.fft2(img_G))
     
     ax[1].plot(phi_freq, fft_G[middle-R_1, :].real, label="Gaussian beams")
-    
+""" 
     
 ax[0].set_title("Horizontal cut through")
 ax[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$', 
@@ -98,8 +115,11 @@ ax[0].legend()
 #ax2.set_ylim((10**(-1), 10**(5)))
 ax[1].set_title("FFT of beam images")
 ax[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax[1].set_xlim((-20, 20))
 ax[1].legend()
 
+plt.tight_layout()
+plt.savefig("fourier/Gauss_diffpositions.pdf")
 plt.show()
     
 fig1, ax = plt.subplots(2, 1, figsize=(8, 45*aspect_value))  
@@ -115,7 +135,7 @@ for i in width_G:
     # Fourier transform the warped image with beams
     fft_G = np.fft.fftshift(np.fft.fft2(img_G))
     
-    ax[1].semilogy(phi_freq, abs(fft_G[middle-R_1, :] + 0.0001), label=r"$\sigma$ = %.3f" %(i/warp_shape[0]*2*np.pi))
+    ax[1].plot(phi_freq, abs(fft_G[middle-R_1, :]), label=r"FFT of Gaussian $\sigma$ = %.3f" %(i/warp_shape[0]*2*np.pi))
     
     
 ax[0].set_title("Gaussian profiles")
@@ -126,6 +146,7 @@ ax[0].legend()
 #ax2.set_ylim((10**(-1), 10**(5)))
 ax[1].set_title("FFT")
 ax[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax[1].set_xlim((-50, 50))
 ax[1].legend()
 
 plt.tight_layout()
@@ -161,13 +182,14 @@ ax2[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$',
 ax2[0].set_xlabel(r'$\varphi$ [rad]')
 ax2[0].legend(loc='upper right')
         
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_beamG[middle-R_1, 900:-900] + 0.0001), label="FFT")
+ax2[1].plot(phi_freq, abs(fft_beamG[middle-R_1, :]), label="FFT")
 #ax2[1].semilogy(phi_freq[900:-900], abs(fft_mean[900:-900] + 0.0001), label="Averaged FFT")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_G1[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile 1")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_G2[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile 2")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_G3[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile 3")
-ax2[1].semilogy(phi_freq[900:-900], abs(fft_G4[middle-R_1, 900:-900] + 0.0001), label="FFT of Gaussian profile 4")
+ax2[1].plot(phi_freq, abs(fft_G1[middle-R_1, :]), label="FFT of Gaussian profile 1")
+ax2[1].plot(phi_freq, abs(fft_G2[middle-R_1, :]), label="FFT of Gaussian profile 2")
+ax2[1].plot(phi_freq, abs(fft_G3[middle-R_1, :]), label="FFT of Gaussian profile 3")
+ax2[1].plot(phi_freq, abs(fft_G4[middle-R_1, :]), label="FFT of Gaussian profile 4")
 ax2[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax2[1].set_xlim((-20, 20))
 ax2[1].legend()
 
 plt.tight_layout()
@@ -207,9 +229,11 @@ ax3[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$',
 ax3[0].set_xlabel(r'$\varphi$ [rad]')
 ax3[0].legend(loc='upper right')
 
-ax3[1].semilogy(phi_freq, abs(fft_beamG[middle-R_1, :] + 0.0001), label="FFT")
+ax3[1].semilogy(phi_freq, abs(fft_beamG[middle-R_1, :]), label="FFT")
 #ax3[1].semilogy(phi_freq, abs(fft_mean + 0.0001), label="Averaged FFT")
 ax3[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
+ax3[1].set_xlim((-50, 50))
+ax3[1].set_ylim((10**(-1), 10**5))
 ax3[1].legend()
 plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
 plt.show()

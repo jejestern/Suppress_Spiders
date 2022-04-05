@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 from astropy.io import fits
 from matplotlib.colors import LogNorm
-from transformations_functions import to_rphi_plane, xy_to_rphi
+from transformations_functions import to_rphi_plane
 from scipy.optimize import curve_fit
 from filter_functions import gaussianBeam, gaussianSpyder, Gaussian1D, e_func
 import aotools
@@ -89,12 +89,12 @@ ax1[0].set_xticks([np.pi/2, np.pi, 3*np.pi/2, 2*np.pi], [r'$\pi/2$', r'$\pi$',
 ax1[0].set_xlabel(r'$\varphi$ [rad]')
 ax1[0].legend(loc='upper right')
 
-ax1[1].semilogy(phi_freq, abs(fft_beamG_shift[cen_r, :]), label="FFT")
+ax1[1].plot(phi_freq, abs(fft_beamG_shift[cen_r, :]), label="FFT")
 ax1[1].set_xlabel(r'Angular frequency [$\frac{1}{\mathrm{rad}}$]')
-ax1[1].set_ylim((10**(-3), 4*10**(4)))
-ax1[1].set_xlim((-70, 70))
+#ax1[1].set_ylim((10**(-3), 4*10**(4)))
+ax1[1].set_xlim((-20, 20))
 ax1[1].legend()
-#plt.savefig("fourier/Gaussian_fourdiffspyders.pdf")
+plt.savefig("fourier/Gaussian_spider_simulation.pdf")
 plt.show()
 
 
